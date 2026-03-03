@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سیستەمی فۆڕمەکان</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/jpeg" href="logo.jpg">
+
+<link rel="apple-touch-icon" sizes="180x180" href="logo.jpg">
+
+<link rel="icon" type="image/jpeg" sizes="192x192" href="logo.jpg">
+<link rel="icon" type="image/jpeg" sizes="512x512" href="logo.jpg">
+<meta name="theme-color" content="#03b6f7">
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        /* ستایلی تایبەت بە ئامارەکان */
+        .stat-card-simple {
+            background: white;
+            border-radius: 18px;
+            padding: 20px;
+            border: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.01);
+            transition: transform 0.2s;
+        }
+        .stat-card-simple:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* ڕێکخستنی لۆگۆ */
+        .sidebar-heading img {
+            width: 80px;  /* قەبارەی لۆگۆ */
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+            transition: transform 0.3s ease;
+        }
+        .sidebar-heading img:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" onclick="toggleMenu()"></div>
+
+<div id="wrapper">
+
+    <div id="sidebar-wrapper">
+        <div class="d-flex justify-content-between align-items-center mb-4 p-3">
+<div class="sidebar-heading w-100">
+    <img src="logo.jpg" alt="MROVDOSTAN">
+    <span class="brand-text">MROVDOSTAN</span>
+</div>
+        </div>
+        
+        <div class="d-flex flex-column gap-2">
+            <a href="index.html" class="mobile-nav-item active">
+                <i class="fa-solid fa-house"></i> <span>سەرەکی</span>
+            </a>
+            
+            <a href="settings.html" id="navSettings" class="mobile-nav-item d-none">
+                <i class="fa-solid fa-gear"></i> <span>سێتینگ</span>
+            </a>
+            
+            <a href="#" onclick="logout()" class="mobile-nav-item text-danger mt-5">
+                <i class="fa-solid fa-right-from-bracket"></i> <span>دەرچوون</span>
+            </a>
+        </div>
+
+        <div class="mt-auto p-3 d-md-none text-center">
+            <small class="text-muted fw-bold">Admin Panel</small>
+        </div>
+    </div>
+
+    <div id="page-content-wrapper">
+        
+        <nav class="navbar navbar-light bg-transparent mb-4">
+            <div class="container-fluid px-0">
+                <button class="btn btn-primary-custom d-lg-none" id="menu-toggle" onclick="toggleMenu()">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                
+                <div class="me-auto d-flex align-items-center gap-3">
+                    <div class="bg-white px-3 py-2 rounded-pill shadow-sm border d-flex align-items-center gap-3">
+                        <img src="https://ui-avatars.com/api/?name=Admin&background=6366f1&color=fff" class="rounded-circle" width="35" height="35">
+                        <div class="d-none d-sm-block">
+                            <span class="d-block text-dark fw-bold" style="font-size: 0.85rem;" id="userEmailDisplay">...</span>
+                        </div>
+                    </div>
+                    <button id="darkModeToggle" class="btn btn-light rounded-circle shadow-sm border" style="width: 40px; height: 40px;">
+    <i id="darkModeIcon" class="fa-solid fa-moon text-primary"></i>
+</button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="row mb-5">
+            <div class="col-md-4">
+                <div class="stat-card-simple">
+                    <div class="icon-box bg-soft-primary ms-0">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-1 small">کۆی پڕۆژەکان</h6>
+                        <h3 class="fw-bold m-0 text-dark" id="totalProjects">...</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4 ps-2 pe-2 border-bottom pb-3">
+            <h5 class="fw-bold text-dark m-0">لیستی پڕۆژەکان</h5>
+        </div>
+        
+        <div id="formsContainer" class="row g-4">
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/dark-mode.js"></script>
+
+<script>
+    // Global Variables
+    let isOwner = false;
+    let allProjects = [];
+
+    // Toggle Menu
+    function toggleMenu() {
+        const sidebar = document.getElementById('sidebar-wrapper');
+        const overlay = document.querySelector('.sidebar-overlay');
+        
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+    }
+
+    // Auth & Check Role
+    firebase.auth().onAuthStateChanged(async (user) => {
+        if (user) {
+            document.getElementById('userEmailDisplay').innerText = user.email.split('@')[0];
+            
+            try {
+                const doc = await db.collection("users").doc(user.email).get();
+                if(doc.exists && doc.data().role === 'owner') {
+                    isOwner = true; 
+                    const settingsLink = document.getElementById('navSettings');
+                    if(settingsLink) settingsLink.classList.remove('d-none');
+                    
+                    // دوای ئەوەی دڵنیا بووینەوە خاوەنە، ڕەندەر دەکەینەوە ئەگەر داتا هەبێت
+                    if(allProjects.length > 0) renderProjects(allProjects);
+                }
+            } catch(e) { console.error(e); }
+        }
+    });
+
+    // ============================================================
+    // Load Forms (Updated for Drag & Drop Order + Auto Fix)
+    // ============================================================
+    // لێرەدا 'createdAt' گۆڕدراوە بۆ 'order'
+    db.collection("forms").orderBy("order", "asc").onSnapshot(async (snapshot) => {
+        const container = document.getElementById('formsContainer');
+        
+        // ---- بەشی چارەسەرکردنی کێشەی دیارنەمان (Auto-Fix) ----
+        if (snapshot.empty) {
+            // پشکنین دەکەین بزانین ئایا بەڕاستی هیچ نییە یان تەنها Orderیان نییە
+            const checkSnapshot = await db.collection("forms").get();
+            
+            if (!checkSnapshot.empty) {
+                console.log("Detecting forms without 'order'. Fixing now...");
+                const batch = db.batch();
+                checkSnapshot.docs.forEach((doc, index) => {
+                    // ئەگەر orderی نەبوو، بۆی زیاد دەکەین
+                    if (doc.data().order === undefined) {
+                        batch.update(doc.ref, { order: index });
+                    }
+                });
+                // ئەمە خۆی دەبێتە هۆی ئەوەی snapshot دووبارە بانگ بکرێتەوە
+                await batch.commit();
+                return;
+            }
+        }
+        // -------------------------------------------------------
+
+        const totalCount = snapshot.size;
+        document.getElementById('totalProjects').innerText = totalCount;
+        
+        allProjects = [];
+        snapshot.forEach(doc => {
+            allProjects.push({ id: doc.id, data: doc.data() });
+        });
+
+        renderProjects(allProjects);
+    });
+
+    function renderProjects(projects) {
+        const container = document.getElementById('formsContainer');
+        container.innerHTML = "";
+
+        if(projects.length === 0) {
+            container.innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <div class="bg-white p-5 rounded-4 border shadow-sm d-inline-block">
+                        <i class="fa-solid fa-folder-open text-muted opacity-25 fa-4x mb-3"></i>
+                        <h5 class="text-muted">هیچ پڕۆژەیەک نییە</h5>
+                    </div>
+                </div>`;
+            return;
+        }
+
+        projects.forEach((item, index) => {
+            const data = item.data;
+            const id = item.id;
+            const isActive = data.active !== false;
+            const viewLink = `${window.location.origin}/view.html?id=${id}`;
+            const delay = index * 0.05; 
+            
+            let statusBadge = isActive 
+                ? `<span class="badge bg-success-subtle text-success rounded-pill">چالاکە</span>` 
+                : `<span class="badge bg-danger-subtle text-danger rounded-pill">ڕاگیراوە</span>`;
+
+            let ownerActions = '';
+            let designButton = '';
+            
+            // ئەگەر خاوەن بوو، دوگمەکانی پیشان دەدەین
+            if (isOwner) {
+                designButton = `
+                    <a href="builder.html?id=${id}" class="btn-design-outline" title="دەستکاری دیزاین">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </a>`;
+
+                ownerActions = `
+                    <button onclick="toggleProjectStatus('${id}', ${isActive})" class="util-btn" title="${isActive ? 'ڕاگرتن' : 'چالاککردن'}">
+                        <i class="fa-solid ${isActive ? 'fa-pause' : 'fa-play'}"></i>
+                    </button>
+                    <button onclick="deleteForm('${id}')" class="util-btn delete" title="سڕینەوە">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                `;
+            }
+
+            container.innerHTML += `
+            <div class="col-md-6 col-lg-4 mb-4 animate-up" style="animation-delay: ${delay}s">
+                <div class="project-card">
+                    <div class="card-body-custom">
+                        <div class="card-header-row">
+                            <div class="card-title-text text-truncate" style="max-width: 70%;" title="${data.title}">${data.title}</div>
+                            ${statusBadge}
+                        </div>
+                        <div class="main-actions-row">
+                            <a href="${viewLink}" target="_blank" class="btn-fill-form">
+                                <i class="fa-solid fa-pen-to-square"></i> پڕکردنەوەی فۆڕم
+                            </a>
+                            ${designButton}
+                        </div>
+                        <div class="utility-row">
+                            <button onclick="copyLink('${viewLink}')" class="util-btn" title="کۆپی لینک">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                            ${ownerActions}
+                        </div>
+                    </div>
+                    <a href="data.html?id=${id}" class="btn-view-data-footer">
+                        بینینی داتاکان <i class="fa-solid fa-arrow-left me-2"></i>
+                    </a>
+                </div>
+            </div>`;
+        });
+    }
+
+    // ===============================================
+    // ١. گۆڕینی دۆخی پڕۆژە (بە دڵنیاییەوە)
+    // ===============================================
+    async function toggleProjectStatus(id, currentStatus) {
+        const actionText = currentStatus ? "ڕاگرتن" : "چالاککردن";
+        const confirmColor = currentStatus ? "#f59e0b" : "#10b981"; 
+
+        const result = await Swal.fire({
+            title: `دڵنیایت لە ${actionText}ی فۆڕمەکە؟`,
+            text: currentStatus ? "بەکارهێنەران چیتر ناتوانن فۆڕم پڕ بکەنەوە." : "فۆڕمەکە دووبارە کارا دەبێتەوە.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: confirmColor,
+            cancelButtonColor: '#d33',
+            confirmButtonText: `بەڵێ، ${actionText}`,
+            cancelButtonText: 'پاشگەزبوونەوە'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await db.collection("forms").doc(id).update({
+                    active: !currentStatus
+                });
+                
+                const Toast = Swal.mixin({
+                    toast: true, position: 'top-end', showConfirmButton: false, timer: 3000,
+                    timerProgressBar: true, didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    }
+                });
+                Toast.fire({ icon: 'success', title: 'دۆخی فۆڕمەکە گۆڕدرا' });
+
+            } catch (error) {
+                console.error(error);
+                Swal.fire('هەڵە!', 'کێشەیەک ڕوویدا.', 'error');
+            }
+        }
+    }
+
+    // ===============================================
+    // ٢. سڕینەوەی پڕۆژە (بە دڵنیایی توندەوە)
+    // ===============================================
+    async function deleteForm(id) {
+        const result = await Swal.fire({
+            title: 'دڵنیایت لە سڕینەوە؟',
+            text: "ئەم فۆڕمە و هەموو داتاکانی دەسڕدرێنەوە و چیتر ناگەڕێنەوە!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'بەڵێ، بیسڕەوە',
+            cancelButtonText: 'پاشگەزبوونەوە'
+        });
+
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'خەریکە دەسڕدرێتەوە...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            try {
+                await db.collection("forms").doc(id).delete();
+                Swal.fire(
+                    'سڕایەوە!',
+                    'پڕۆژەکە بە سەرکەوتوویی سڕایەوە.',
+                    'success'
+                );
+            } catch (error) {
+                console.error(error);
+                Swal.fire('هەڵە!', 'نەتوانرا بسڕدرێتەوە.', 'error');
+            }
+        }
+    }
+
+    function copyLink(link) { 
+        navigator.clipboard.writeText(link).then(() => {
+            const Toast = Swal.mixin({
+                toast: true, position: 'top-end', showConfirmButton: false, timer: 2000,
+                timerProgressBar: true
+            });
+            Toast.fire({ icon: 'success', title: 'لینک کۆپی کرا' });
+        }); 
+    }
+</script>
+
+</body>
+</html>

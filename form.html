@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Form Builder</title>
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #ec4899;
+            --bg-light: #f3f4f6;
+            --text-dark: #1e1e2d;
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: var(--bg-light);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-dark);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Layout */
+        .builder-container {
+            display: flex;
+            gap: 20px;
+            height: 100%;
+        }
+
+        /* Sidebar Tools (Right Side) */
+        .sidebar-tools {
+            width: 300px;
+            background: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .tool-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .tool-item:hover {
+            border-color: var(--primary);
+            background: #eef2ff;
+            transform: translateX(-5px);
+        }
+
+        .tool-item i {
+            color: var(--primary);
+        }
+
+        /* Canvas (Main Area) */
+        .form-canvas {
+            flex: 1;
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow-y: auto;
+            min-height: 500px;
+            border: 2px dashed #cbd5e1;
+            transition: background 0.3s;
+        }
+
+        .form-canvas.drag-over {
+            background: #f0fdf4;
+            border-color: #22c55e;
+        }
+
+        /* Form Elements inside Canvas */
+        .form-element {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            position: relative;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+
+        .form-element:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: var(--primary);
+        }
+
+        .element-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .element-label {
+            font-weight: bold;
+            font-size: 1.1rem;
+            border: 1px solid transparent;
+            padding: 2px 8px;
+            border-radius: 4px;
+            cursor: text;
+            min-width: 150px;
+        }
+
+        .element-label:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .element-label:focus {
+            outline: none;
+            background: white;
+            border-color: var(--primary);
+        }
+
+        .element-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            color: #64748b;
+            transition: color 0.2s;
+        }
+
+        .btn-action.delete:hover { color: #ef4444; }
+        .btn-action.duplicate:hover { color: var(--primary); }
+        .btn-action.branch { 
+            background: #ec48991a; 
+            color: var(--secondary);
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+        .btn-action.branch:hover {
+            background: var(--secondary);
+            color: white;
+        }
+
+        /* Preview Inputs */
+        .preview-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            background: #f8fafc;
+            pointer-events: none; /* Just for preview */
+        }
+
+        /* Nested Container (For Branching) */
+        .nested-container {
+            margin-top: 15px;
+            margin-right: 20px; /* Indent */
+            padding: 15px;
+            border-right: 3px solid var(--secondary);
+            background: #fdf2f8;
+            border-radius: 8px 0 0 8px;
+            min-height: 60px;
+        }
+        
+        .nested-container:empty::before {
+            content: 'پرسیارە لاوەکییەکان (Child) لێرە دابنێ...';
+            color: #ec4899;
+            opacity: 0.6;
+            font-size: 0.9rem;
+            display: block;
+            text-align: center;
+            padding: 10px;
+            border: 1px dashed #ec4899;
+            border-radius: 6px;
+        }
+
+        /* Ghost Class (Sortable) */
+        .sortable-ghost {
+            opacity: 0.4;
+            background: #e2e8f0;
+            border: 2px dashed var(--primary);
+        }
+
+        .page-header {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .save-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-header">
+        <h2><i class="fa-solid fa-wand-magic-sparkles text-primary ms-2"></i> دروستکەری فۆڕمی پێشکەوتوو</h2>
+        <button class="save-btn" onclick="saveFormStructure()">
+            <i class="fa-solid fa-save ms-2"></i> پاشەکەوتکردن
+        </button>
+    </div>
+
+    <div class="builder-container">
+        <div class="sidebar-tools">
+            <h5 class="mb-3 text-muted">کەرەستەکان</h5>
+            <div id="toolbox-list">
+                <div class="tool-item" data-type="text">
+                    <i class="fa-solid fa-font"></i> دەقی کورت
+                </div>
+                <div class="tool-item" data-type="textarea">
+                    <i class="fa-solid fa-align-right"></i> دەقی درێژ
+                </div>
+                <div class="tool-item" data-type="number">
+                    <i class="fa-solid fa-hashtag"></i> ژمارە
+                </div>
+                <div class="tool-item" data-type="select">
+                    <i class="fa-solid fa-list-check"></i> هەڵبژاردن
+                </div>
+                <div class="tool-item" data-type="date">
+                    <i class="fa-regular fa-calendar"></i> بەروار
+                </div>
+                <div class="tool-item" data-type="file">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> پەڕگە (File)
+                </div>
+            </div>
+        </div>
+
+        <div id="main-canvas" class="form-canvas">
+            <div class="text-center text-muted mt-5" id="empty-msg">
+                <i class="fa-solid fa-arrow-right fa-2x mb-3 opacity-50"></i>
+                <p>خانەکان لە لای ڕاستەوە ڕابکێشە بۆ ئێرە</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/dark-mode.js"></script>
+
+    <script>
+        // Initialize Sortable for the Toolbox (Source)
+        new Sortable(document.getElementById('toolbox-list'), {
+            group: {
+                name: 'shared',
+                pull: 'clone', // Copy instead of move
+                put: false // Cannot drop items back into toolbox
+            },
+            sort: false, // Toolbox items don't need sorting
+            animation: 150
+        });
+
+        // Initialize Sortable for the Main Canvas (Target)
+        initSortable(document.getElementById('main-canvas'));
+
+        // Function to initialize sortable on any container (Recursive for nesting)
+        function initSortable(element) {
+            new Sortable(element, {
+                group: 'shared',
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                onAdd: function (evt) {
+                    // When an item is dropped from Toolbox
+                    const item = evt.item;
+                    const type = item.getAttribute('data-type');
+                    
+                    // Replace the dragged toolbox item with a real form element
+                    const newElement = createFormElement(type);
+                    item.replaceWith(newElement);
+
+                    // Remove empty message if exists
+                    const emptyMsg = document.getElementById('empty-msg');
+                    if(emptyMsg) emptyMsg.style.display = 'none';
+                }
+            });
+        }
+
+        // Factory function to create HTML for form elements
+        function createFormElement(type) {
+            const id = 'field_' + Math.random().toString(36).substr(2, 9);
+            const div = document.createElement('div');
+            div.className = 'form-element animate-up';
+            div.setAttribute('data-id', id);
+            div.setAttribute('data-field-type', type);
+
+            let inputHTML = '';
+            let labelText = 'ناونیشانی پرسیارەکە بنووسە';
+            let icon = '';
+
+            // Generate Input Preview based on type
+            switch(type) {
+                case 'text':
+                    inputHTML = '<input type="text" class="preview-input" placeholder="دەقی کورت...">';
+                    icon = 'fa-font';
+                    break;
+                case 'textarea':
+                    inputHTML = '<textarea class="preview-input" rows="3" placeholder="دەقی درێژ..."></textarea>';
+                    icon = 'fa-align-right';
+                    break;
+                case 'number':
+                    inputHTML = '<input type="number" class="preview-input" placeholder="123">';
+                    icon = 'fa-hashtag';
+                    break;
+                case 'select':
+                    inputHTML = '<select class="preview-input"><option>بژاردەی یەکەم</option><option>بژاردەی دووەم</option></select>';
+                    icon = 'fa-list-check';
+                    break;
+                case 'date':
+                    inputHTML = '<input type="date" class="preview-input">';
+                    icon = 'fa-calendar';
+                    break;
+                 case 'file':
+                    inputHTML = '<input type="file" class="preview-input" disabled>';
+                    icon = 'fa-cloud-arrow-up';
+                    break;
+            }
+
+            div.innerHTML = `
+                <div class="element-header">
+                    <div class="d-flex align-items-center gap-2" style="width: 70%;">
+                        <i class="fa-solid fa-grip-vertical text-muted ms-2" style="cursor: move;"></i>
+                        <i class="fa-solid ${icon} text-primary ms-2"></i>
+                        <div class="element-label" contenteditable="true" spellcheck="false">${labelText}</div>
+                    </div>
+                    <div class="element-actions">
+                        <button class="btn-action branch" onclick="addBranch(this)" title="درروستکردنی لق (مەرج)">
+                            <i class="fa-solid fa-code-branch"></i> لق
+                        </button>
+                        <button class="btn-action delete" onclick="removeElement(this)" title="سڕینەوە">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="element-body">
+                    ${inputHTML}
+                </div>
+                <div class="nested-container" id="nested_${id}" style="display: none;"></div>
+            `;
+
+            return div;
+        }
+
+        // Action: Remove Element
+        function removeElement(btn) {
+            if(confirm('دڵنیایت لە سڕینەوەی ئەم خانەیە؟')) {
+                const element = btn.closest('.form-element');
+                element.remove();
+            }
+        }
+
+        // Action: Add Branch (Nested Logic)
+        function addBranch(btn) {
+            const element = btn.closest('.form-element');
+            const id = element.getAttribute('data-id');
+            const nestedContainer = element.querySelector(`#nested_${id}`);
+            
+            // Show the container
+            nestedContainer.style.display = 'block';
+            
+            // Make it sortable (drop zone)
+            if (!nestedContainer.classList.contains('sortable-initialized')) {
+                initSortable(nestedContainer);
+                nestedContainer.classList.add('sortable-initialized');
+            }
+        }
+
+        // Action: Save Structure (For Developer usage)
+        function saveFormStructure() {
+            const structure = getStructure(document.getElementById('main-canvas'));
+            console.log(JSON.stringify(structure, null, 2));
+            alert('داتاکە لە Console چاپکرا. سەیری Developer Tools بکە (F12).');
+        }
+
+        // Recursive function to build JSON tree from DOM
+        function getStructure(container) {
+            const elements = [];
+            const children = container.children;
+            
+            for (let child of children) {
+                if (child.classList.contains('form-element')) {
+                    const id = child.getAttribute('data-id');
+                    const type = child.getAttribute('data-field-type');
+                    const label = child.querySelector('.element-label').innerText;
+                    
+                    // Check for nested children
+                    const nestedContainer = child.querySelector('.nested-container');
+                    const nestedItems = nestedContainer ? getStructure(nestedContainer) : [];
+
+                    elements.push({
+                        id: id,
+                        type: type,
+                        label: label,
+                        children: nestedItems // Recursive nesting
+                    });
+                }
+            }
+            return elements;
+        }
+
+    </script>
+</body>
+</html>

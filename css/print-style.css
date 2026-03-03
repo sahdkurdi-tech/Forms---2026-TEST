@@ -1,0 +1,144 @@
+/* css/dark-mode.css - Final Clean Version */
+
+/* =========================================
+   1. ڕێکخستنی بنچینەیی (Global Reset)
+   ========================================= */
+body.dark-mode {
+    background-color: #0f172a !important; /* Slate 900 */
+    color: #f1f5f9 !important;
+}
+
+/* هەموو نووسینەکان دەکەین بە سپی */
+body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, 
+body.dark-mode h4, body.dark-mode h5, body.dark-mode h6,
+body.dark-mode p, body.dark-mode span, body.dark-mode div, 
+body.dark-mode li, body.dark-mode label, body.dark-mode strong, 
+body.dark-mode b, body.dark-mode td, body.dark-mode th,
+body.dark-mode .text-dark, body.dark-mode .fw-bold {
+    color: #f1f5f9 !important;
+}
+
+body.dark-mode .text-muted { color: #94a3b8 !important; }
+body.dark-mode .text-primary { color: #38bdf8 !important; }
+body.dark-mode .text-danger { color: #f87171 !important; }
+body.dark-mode .text-success { color: #4ade80 !important; }
+body.dark-mode .small { color: #cbd5e1 !important; }
+
+/* =========================================
+   2. کارتی مۆدێرن (Modern Card)
+   ========================================= */
+body.dark-mode .modern-card, 
+body.dark-mode .card,
+body.dark-mode .modal-content {
+    background-color: #1e293b !important; /* Slate 800 */
+    border-color: #334155 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5) !important;
+    color: #fff !important;
+}
+
+/* =========================================
+   3. خشتە (Tables)
+   ========================================= */
+body.dark-mode .table {
+    color: #f1f5f9 !important;
+    border-color: #334155 !important;
+}
+body.dark-mode .table thead th {
+    background-color: #0f172a !important;
+    color: #e2e8f0 !important;
+    border-bottom-color: #475569 !important;
+}
+body.dark-mode .table tbody tr:hover {
+    background-color: #334155 !important;
+}
+body.dark-mode .table td {
+    border-color: #334155 !important;
+}
+
+/* =========================================
+   4. فۆڕم و ئینپوت (Forms & Inputs)
+   ========================================= */
+body.dark-mode .form-control, 
+body.dark-mode .form-select,
+body.dark-mode textarea {
+    background-color: #0f172a !important;
+    border-color: #475569 !important;
+    color: #fff !important;
+}
+body.dark-mode .form-control:focus,
+body.dark-mode .form-select:focus {
+    background-color: #0f172a !important;
+    border-color: #38bdf8 !important;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2) !important;
+}
+
+body.dark-mode .bg-light {
+    background-color: #334155 !important; /* Slate 700 replaces bg-light */
+    color: #fff !important;
+    border-color: #475569 !important;
+}
+
+/* =========================================
+   5. مۆداڵ (Modals)
+   ========================================= */
+body.dark-mode .modal-header {
+    border-bottom-color: #334155 !important;
+}
+body.dark-mode .modal-footer {
+    border-top-color: #334155 !important;
+    background-color: #1e293b !important;
+}
+body.dark-mode .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* =========================================
+   6. دوگمەکان (Buttons Fixes) - ئەمە بەشە نوێیەکەیە
+   ========================================= */
+/* چارەسەری دوگمەی پرێنت لە دۆخی تاریک */
+body.dark-mode .btn-outline-dark {
+    color: #fff !important;
+    border-color: #fff !important;
+}
+body.dark-mode .btn-outline-dark:hover {
+    background-color: #fff !important;
+    color: #000 !important;
+}
+
+body.dark-mode .btn-white {
+    background-color: #1e293b !important;
+    color: #fff !important;
+    border-color: #475569 !important;
+}
+
+/* =========================================
+   7. سایدبار (Sidebar)
+   ========================================= */
+body.dark-mode #sidebar-wrapper {
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%) !important;
+    border-left: 1px solid #334155;
+}
+body.dark-mode .list-group-item {
+    color: #cbd5e1 !important;
+}
+body.dark-mode .list-group-item:hover,
+body.dark-mode .list-group-item.active {
+    background-color: rgba(56, 189, 248, 0.1) !important;
+    color: #38bdf8 !important;
+}
+
+/* =========================================
+   8. تایبەت بە View.html و Print
+   ========================================= */
+body.dark-mode .modern-title {
+    color: #fff !important;
+    text-shadow: none !important;
+}
+body.dark-mode .modern-subtitle {
+    color: #94a3b8 !important;
+    border-color: #334155 !important;
+}
+body.dark-mode .opacity-50 {
+    opacity: 0.5 !important;
+    color: #94a3b8 !important;
+}
