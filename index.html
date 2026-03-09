@@ -37,6 +37,11 @@
             transition: transform 0.2s;
         }
 
+        body.dark-mode .stat-card-simple {
+            background: var(--card-dark, #1e293b);
+            border-color: var(--border-dark, #334155);
+        }
+
         .stat-card-simple:hover {
             transform: translateY(-3px);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
@@ -45,7 +50,6 @@
         /* ڕێکخستنی لۆگۆ */
         .sidebar-heading img {
             width: 80px;
-            /* قەبارەی لۆگۆ */
             height: 80px;
             object-fit: contain;
             margin-bottom: 10px;
@@ -56,16 +60,79 @@
         .sidebar-heading img:hover {
             transform: scale(1.05);
         }
+
+        /* =========================================
+           دیزاینی مینیۆی مۆبایل (Floating Menu) 
+           ========================================= */
+        @media (max-width: 991px) {
+            #page-content-wrapper {
+                padding-top: 90px !important;
+            }
+
+            .modern-navbar {
+                background: rgba(255, 255, 255, 0.85);
+                backdrop-filter: blur(15px);
+                -webkit-backdrop-filter: blur(15px);
+            }
+
+            body.dark-mode .modern-navbar {
+                background: rgba(30, 41, 59, 0.85);
+            }
+
+            #navbarNav {
+                background: #ffffff;
+                border-radius: 15px;
+                padding: 15px;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                margin-top: 10px;
+            }
+
+            body.dark-mode #navbarNav {
+                background: #1e293b;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            }
+        }
     </style>
 </head>
 
 <body>
 
-    <div class="sidebar-overlay" onclick="toggleMenu()"></div>
+    <nav class="navbar modern-navbar fixed-top mx-auto mt-3 shadow-sm d-lg-none"
+        style="max-width: 92%; border-radius: 50px; z-index: 1050; border: 1px solid rgba(0,0,0,0.05);">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <img src="logo.jpg" alt="MROVDOSTAN" width="35" height="35" class="rounded-circle me-2"
+                    style="object-fit: contain;">
+                <span class="fw-bold text-primary fs-6">MROVDOSTAN</span>
+            </a>
+
+            <button class="navbar-toggler border-0 shadow-none p-0" type="button" id="mobileMenuToggler">
+                <i class="fa-solid fa-bars-staggered fa-lg text-primary"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav align-items-center gap-2 mt-2">
+                    <li class="nav-item w-100"><a class="nav-link fw-bold active text-primary text-center"
+                            href="index.html"><i class="fa-solid fa-house me-1"></i> سەرەکی</a></li>
+                    <li class="nav-item w-100"><a class="nav-link fw-bold text-center" href="aid-board.html"><i
+                                class="fa-solid fa-hand-holding-heart me-1"></i> کەیسی نوێ</a></li>
+                    <li class="nav-item w-100 d-none" id="navSettingsMobile"><a class="nav-link fw-bold text-center"
+                            href="settings.html"><i class="fa-solid fa-gear me-1"></i> سێتینگ</a></li>
+                    <li class="nav-item w-100 border-top pt-2 mt-1"><a class="nav-link fw-bold text-danger text-center"
+                            href="#" onclick="logout()"><i class="fa-solid fa-right-from-bracket me-1"></i> دەرچوون</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
 
     <div id="wrapper">
-
-        <div id="sidebar-wrapper">
+        <div id="sidebar-wrapper" class="d-none d-lg-block">
             <div class="d-flex justify-content-between align-items-center mb-4 p-3">
                 <div class="sidebar-heading w-100">
                     <img src="logo.jpg" alt="MROVDOSTAN">
@@ -96,16 +163,14 @@
             </div>
         </div>
 
-        <div id="page-content-wrapper">
+
+        <div id="page-content-wrapper" class="w-100 p-4">
 
             <nav class="navbar navbar-light bg-transparent mb-4">
-                <div class="container-fluid px-0">
-                    <button class="btn btn-primary-custom d-lg-none" id="menu-toggle" onclick="toggleMenu()">
-                        <i class="fa-solid fa-bars"></i>
-                    </button>
-
-                    <div class="me-auto d-flex align-items-center gap-3">
-                        <div class="bg-white px-3 py-2 rounded-pill shadow-sm border d-flex align-items-center gap-3">
+                <div class="container-fluid px-0 d-flex justify-content-end">
+                    <div class="d-flex align-items-center gap-3">
+                        <div
+                            class="bg-white px-3 py-2 rounded-pill shadow-sm border d-flex align-items-center gap-3 profile-badge">
                             <img src="https://ui-avatars.com/api/?name=Admin&background=6366f1&color=fff"
                                 class="rounded-circle" width="35" height="35">
                             <div class="d-none d-sm-block">
@@ -113,7 +178,8 @@
                                     id="userEmailDisplay">...</span>
                             </div>
                         </div>
-                        <button id="darkModeToggle" class="btn btn-light rounded-circle shadow-sm border"
+                        <button id="darkModeToggle"
+                            class="btn btn-light rounded-circle shadow-sm border d-flex justify-content-center align-items-center"
                             style="width: 40px; height: 40px;">
                             <i id="darkModeIcon" class="fa-solid fa-moon text-primary"></i>
                         </button>
@@ -158,15 +224,6 @@
         let isOwner = false;
         let allProjects = [];
 
-        // Toggle Menu
-        function toggleMenu() {
-            const sidebar = document.getElementById('sidebar-wrapper');
-            const overlay = document.querySelector('.sidebar-overlay');
-
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-        }
-
         // Auth & Check Role
         firebase.auth().onAuthStateChanged(async (user) => {
             if (user) {
@@ -176,10 +233,15 @@
                     const doc = await db.collection("users").doc(user.email).get();
                     if (doc.exists && doc.data().role === 'owner') {
                         isOwner = true;
+
+                        // پیشاندانی سێتینگ لە کۆمپیوتەر
                         const settingsLink = document.getElementById('navSettings');
                         if (settingsLink) settingsLink.classList.remove('d-none');
 
-                        // دوای ئەوەی دڵنیا بووینەوە خاوەنە، ڕەندەر دەکەینەوە ئەگەر داتا هەبێت
+                        // پیشاندانی سێتینگ لە مۆبایل
+                        const settingsLinkMobile = document.getElementById('navSettingsMobile');
+                        if (settingsLinkMobile) settingsLinkMobile.classList.remove('d-none');
+
                         if (allProjects.length > 0) renderProjects(allProjects);
                     }
                 } catch (e) { console.error(e); }
@@ -189,30 +251,24 @@
         // ============================================================
         // Load Forms (Updated for Drag & Drop Order + Auto Fix)
         // ============================================================
-        // لێرەدا 'createdAt' گۆڕدراوە بۆ 'order'
         db.collection("forms").orderBy("order", "asc").onSnapshot(async (snapshot) => {
             const container = document.getElementById('formsContainer');
 
-            // ---- بەشی چارەسەرکردنی کێشەی دیارنەمان (Auto-Fix) ----
             if (snapshot.empty) {
-                // پشکنین دەکەین بزانین ئایا بەڕاستی هیچ نییە یان تەنها Orderیان نییە
                 const checkSnapshot = await db.collection("forms").get();
 
                 if (!checkSnapshot.empty) {
                     console.log("Detecting forms without 'order'. Fixing now...");
                     const batch = db.batch();
                     checkSnapshot.docs.forEach((doc, index) => {
-                        // ئەگەر orderی نەبوو، بۆی زیاد دەکەین
                         if (doc.data().order === undefined) {
                             batch.update(doc.ref, { order: index });
                         }
                     });
-                    // ئەمە خۆی دەبێتە هۆی ئەوەی snapshot دووبارە بانگ بکرێتەوە
                     await batch.commit();
                     return;
                 }
             }
-            // -------------------------------------------------------
 
             const totalCount = snapshot.size;
             document.getElementById('totalProjects').innerText = totalCount;
@@ -234,7 +290,7 @@
                 <div class="col-12 text-center py-5">
                     <div class="bg-white p-5 rounded-4 border shadow-sm d-inline-block">
                         <i class="fa-solid fa-folder-open text-muted opacity-25 fa-4x mb-3"></i>
-                        <h5 class="text-muted">هیچ پڕۆژەیەک نییە</h5>
+                        <h5 class="text-muted mt-3">هیچ پڕۆژەیەک نییە</h5>
                     </div>
                 </div>`;
                 return;
@@ -254,7 +310,6 @@
                 let ownerActions = '';
                 let designButton = '';
 
-                // ئەگەر خاوەن بوو، دوگمەکانی پیشان دەدەین
                 if (isOwner) {
                     designButton = `
                     <a href="builder.html?id=${id}" class="btn-design-outline" title="دەستکاری دیزاین">
@@ -301,7 +356,7 @@
         }
 
         // ===============================================
-        // ١. گۆڕینی دۆخی پڕۆژە (بە دڵنیاییەوە)
+        // ١. گۆڕینی دۆخی پڕۆژە
         // ===============================================
         async function toggleProjectStatus(id, currentStatus) {
             const actionText = currentStatus ? "ڕاگرتن" : "چالاککردن";
@@ -326,10 +381,7 @@
 
                     const Toast = Swal.mixin({
                         toast: true, position: 'top-end', showConfirmButton: false, timer: 3000,
-                        timerProgressBar: true, didOpen: (toast) => {
-                            toast.addEventListener('mouseenter', Swal.stopTimer)
-                            toast.addEventListener('mouseleave', Swal.resumeTimer)
-                        }
+                        timerProgressBar: true
                     });
                     Toast.fire({ icon: 'success', title: 'دۆخی فۆڕمەکە گۆڕدرا' });
 
@@ -341,7 +393,7 @@
         }
 
         // ===============================================
-        // ٢. سڕینەوەی پڕۆژە (بە دڵنیایی توندەوە)
+        // ٢. سڕینەوەی پڕۆژە
         // ===============================================
         async function deleteForm(id) {
             const result = await Swal.fire({
@@ -364,11 +416,7 @@
 
                 try {
                     await db.collection("forms").doc(id).delete();
-                    Swal.fire(
-                        'سڕایەوە!',
-                        'پڕۆژەکە بە سەرکەوتوویی سڕایەوە.',
-                        'success'
-                    );
+                    Swal.fire('سڕایەوە!', 'پڕۆژەکە بە سەرکەوتوویی سڕایەوە.', 'success');
                 } catch (error) {
                     console.error(error);
                     Swal.fire('هەڵە!', 'نەتوانرا بسڕدرێتەوە.', 'error');
@@ -385,6 +433,28 @@
                 Toast.fire({ icon: 'success', title: 'لینک کۆپی کرا' });
             });
         }
+
+        // ===============================================
+        // کارپێکردنی مینیۆی مۆبایل
+        // ===============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleBtn = document.getElementById('mobileMenuToggler');
+            const navMenu = document.getElementById('navbarNav');
+
+            if (toggleBtn && navMenu) {
+                toggleBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    navMenu.classList.toggle('show');
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (navMenu.classList.contains('show') && !navMenu.contains(e.target) && !toggleBtn.contains(e.target)) {
+                        navMenu.classList.remove('show');
+                    }
+                });
+            }
+        });
     </script>
 
 </body>

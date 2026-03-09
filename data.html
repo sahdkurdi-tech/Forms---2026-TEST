@@ -33,6 +33,12 @@
             vertical-align: middle;
         }
 
+        body.dark-mode .table thead th {
+            background-color: #1e293b;
+            color: #cbd5e1;
+            border-color: #334155;
+        }
+
         .column-search {
             border-radius: 8px;
             border: 1px solid #e2e8f0;
@@ -40,6 +46,12 @@
             font-size: 0.85rem;
             transition: all 0.2s;
             min-width: 120px;
+        }
+
+        body.dark-mode .column-search {
+            background-color: #0f172a;
+            border-color: #334155;
+            color: #f1f5f9;
         }
 
         .column-search:focus {
@@ -65,7 +77,11 @@
             background-color: #f8fafc;
         }
 
-        /* --- ستایلی تایبەت بە لۆگۆ (وەک پەڕەی سەرەکی) --- */
+        body.dark-mode .clickable-row:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        /* ڕێکخستنی سایدباری کۆمپیوتەر */
         .sidebar-heading img {
             width: 80px;
             height: 80px;
@@ -78,16 +94,79 @@
         .sidebar-heading img:hover {
             transform: scale(1.05);
         }
+
+        /* =========================================
+           دیزاینی مینیۆی مۆبایل (Floating Menu) 
+           ========================================= */
+        @media (max-width: 991px) {
+            #page-content-wrapper {
+                padding-top: 100px !important;
+            }
+
+            .modern-navbar {
+                background: rgba(255, 255, 255, 0.85);
+                backdrop-filter: blur(15px);
+                -webkit-backdrop-filter: blur(15px);
+            }
+
+            body.dark-mode .modern-navbar {
+                background: rgba(30, 41, 59, 0.85);
+            }
+
+            #navbarNav {
+                background: #ffffff;
+                border-radius: 15px;
+                padding: 15px;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                margin-top: 10px;
+            }
+
+            body.dark-mode #navbarNav {
+                background: #1e293b;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            }
+        }
     </style>
 </head>
 
 <body>
 
-    <div class="sidebar-overlay" onclick="toggleMenu()"></div>
+    <nav class="navbar modern-navbar fixed-top mx-auto mt-3 shadow-sm d-lg-none"
+        style="max-width: 92%; border-radius: 50px; z-index: 1050; border: 1px solid rgba(0,0,0,0.05);">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <img src="logo.jpg" alt="MROVDOSTAN" width="35" height="35" class="rounded-circle me-2"
+                    style="object-fit: contain;">
+                <span class="fw-bold text-primary fs-6">MROVDOSTAN</span>
+            </a>
+
+            <button class="navbar-toggler border-0 shadow-none p-0" type="button" id="mobileMenuToggler">
+                <i class="fa-solid fa-bars-staggered fa-lg text-primary"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav align-items-center gap-2">
+                    <li class="nav-item w-100"><a class="nav-link fw-bold text-center" href="index.html"><i
+                                class="fa-solid fa-house me-1"></i> سەرەکی</a></li>
+                    <li class="nav-item w-100"><a class="nav-link fw-bold text-center" href="aid-board.html"><i
+                                class="fa-solid fa-hand-holding-heart me-1"></i> دابەشکردن</a></li>
+                    <li class="nav-item w-100 d-none" id="navSettingsMobile"><a class="nav-link fw-bold text-center"
+                            href="settings.html"><i class="fa-solid fa-gear me-1"></i> سێتینگ</a></li>
+                    <li class="nav-item w-100 border-top pt-2 mt-1"><a class="nav-link fw-bold text-danger text-center"
+                            href="#" onclick="logout()"><i class="fa-solid fa-right-from-bracket me-1"></i> دەرچوون</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
 
     <div id="wrapper">
-
-        <div id="sidebar-wrapper">
+        <div id="sidebar-wrapper" class="d-none d-lg-block">
             <div class="d-flex justify-content-between align-items-center mb-4 p-3">
                 <div class="sidebar-heading w-100">
                     <img src="logo.jpg" alt="MROVDOSTAN">
@@ -119,54 +198,51 @@
                 </a>
             </div>
         </div>
-        <div id="page-content-wrapper">
 
-            <nav class="navbar navbar-expand-lg navbar-light bg-transparent mb-4">
-                <div class="container-fluid px-0 d-flex justify-content-between flex-wrap gap-3">
-                    <div class="d-flex align-items-center">
-                        <button class="btn btn-primary-custom d-lg-none me-3" id="menu-toggle" onclick="toggleMenu()">
-                            <i class="fa-solid fa-bars"></i>
+        <div id="page-content-wrapper" class="w-100 p-4">
+
+            <div
+                class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3 mb-4">
+                <div>
+                    <h4 class="fw-bold m-0 text-dark">داتای: <span id="formTitle" class="text-primary">...</span></h4>
+                    <span class="text-muted small">ژمارەی دراوەکان: <span id="displayedCount"
+                            class="fw-bold text-primary">0</span></span>
+                </div>
+
+                <div class="d-flex gap-2 flex-wrap w-100 w-lg-auto justify-content-start justify-content-lg-end">
+                    <input type="file" id="importExcelInput" hidden accept=".xlsx, .xls"
+                        onchange="handleExcelImport(this)">
+
+                    <button id="importExcelBtn" onclick="document.getElementById('importExcelInput').click()"
+                        class="btn btn-warning text-dark shadow-sm animate-up d-none">
+                        <i class="fa-solid fa-file-import"></i>
+                        <span class="d-none d-sm-inline ms-1">Import</span>
+                    </button>
+
+                    <button id="excelExportBtn" onclick="exportToExcel()"
+                        class="btn btn-success text-white shadow-sm animate-up d-none">
+                        <i class="fa-solid fa-file-excel"></i>
+                        <span class="d-none d-sm-inline ms-1">Excel</span>
+                    </button>
+
+                    <button id="bulkDeleteBtn" onclick="deleteSelected()"
+                        class="btn btn-danger text-white shadow-sm d-none animate-up">
+                        <i class="fa-solid fa-trash"></i>
+                        <span class="d-none d-sm-inline ms-1">سڕینەوە</span> (<span id="selectedCount">0</span>)
+                    </button>
+
+                    <div class="dropdown ms-auto ms-lg-0">
+                        <button
+                            class="btn btn-white bg-white border shadow-sm dropdown-toggle d-flex align-items-center gap-2 px-3 py-2"
+                            type="button" data-bs-toggle="dropdown" style="white-space: nowrap;">
+                            <i class="fa-solid fa-table-columns text-primary"></i>
+                            <span class="d-none d-sm-inline">ستوونەکان</span>
                         </button>
-                        <div>
-                            <h4 class="fw-bold m-0 text-dark">داتای: <span id="formTitle"
-                                    class="text-primary">...</span></h4>
-                            <span class="text-muted small">ژمارەی دراوەکان: <span id="displayedCount"
-                                    class="fw-bold text-primary">0</span></span>
-                        </div>
-                    </div>
-
-                    <div class="d-flex gap-2 flex-wrap">
-                        <input type="file" id="importExcelInput" hidden accept=".xlsx, .xls"
-                            onchange="handleExcelImport(this)">
-
-                        <button id="importExcelBtn" onclick="document.getElementById('importExcelInput').click()"
-                            class="btn btn-warning text-dark shadow-sm animate-up d-none">
-                            <i class="fa-solid fa-file-import me-2"></i> Import
-                        </button>
-
-                        <button id="excelExportBtn" onclick="exportToExcel()"
-                            class="btn btn-success text-white shadow-sm animate-up d-none">
-                            <i class="fa-solid fa-file-excel me-2"></i> Excel
-                        </button>
-
-                        <button id="bulkDeleteBtn" onclick="deleteSelected()"
-                            class="btn btn-danger text-white shadow-sm d-none animate-up">
-                            <i class="fa-solid fa-trash me-2"></i> سڕینەوە (<span id="selectedCount">0</span>)
-                        </button>
-
-                        <div class="dropdown">
-                            <button
-                                class="btn btn-white bg-white border shadow-sm dropdown-toggle d-flex align-items-center gap-2 px-3 py-2"
-                                type="button" data-bs-toggle="dropdown" style="white-space: nowrap;">
-                                <i class="fa-solid fa-table-columns text-primary"></i>
-                                <span>ستوونەکان</span>
-                            </button>
-                            <div class="dropdown-menu shadow border-0 p-3" id="columnToggleMenu"
-                                style="max-height: 300px; overflow-y: auto;"></div>
-                        </div>
+                        <div class="dropdown-menu shadow border-0 p-3" id="columnToggleMenu"
+                            style="max-height: 300px; overflow-y: auto;"></div>
                     </div>
                 </div>
-            </nav>
+            </div>
 
             <div class="modern-card p-0 overflow-hidden shadow-sm">
                 <div class="table-responsive" style="min-height: 400px;">
@@ -174,7 +250,6 @@
                         <thead>
                             <tr id="tableHead"></tr>
                         </thead>
-
                         <tbody id="tableBody">
                             <tr id="initialLoader">
                                 <td colspan="10" class="text-center py-5 text-muted">
@@ -184,7 +259,6 @@
                                 </td>
                             </tr>
                         </tbody>
-
                     </table>
                 </div>
 
@@ -215,7 +289,6 @@
                     <button type="button" class="btn btn-outline-danger" onclick="printData('pdf')">
                         <i class="fa-regular fa-file-pdf me-2"></i> PDF
                     </button>
-
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">داخستن</button>
                 </div>
             </div>
@@ -248,7 +321,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <script src="js/firebase-config.js"></script>
@@ -258,29 +330,47 @@
     <script src="js/dark-mode.js"></script>
 
     <script>
-        // ٥. فەنکشنی کردنەوە و داخستنی مینیۆ (Active Class)
-        function toggleMenu() {
-            const sidebar = document.getElementById('sidebar-wrapper');
-            const overlay = document.querySelector('.sidebar-overlay');
-
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-        }
-
-        // Check owner role
+        // Check owner role بۆ پیشاندانی دوگمەی سێتینگ
         firebase.auth().onAuthStateChanged(async (user) => {
             if (user) {
                 try {
-                    // دڵنیابوونەوە لەوەی db بوونی هەیە
                     if (typeof db !== 'undefined') {
                         const doc = await db.collection("users").doc(user.email).get();
                         if (doc.exists && doc.data().role === 'owner') {
                             const settingLink = document.getElementById('navSettingsSidebar');
+                            const settingLinkMobile = document.getElementById('navSettingsMobile');
                             if (settingLink) settingLink.classList.remove('d-none');
+                            if (settingLinkMobile) settingLinkMobile.classList.remove('d-none');
                         }
                     }
                 } catch (e) { console.error(e); }
             }
+        });
+
+        // کۆدی کارپێکردنی مینیۆی مۆبایل
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleBtn = document.getElementById('mobileMenuToggler');
+            const navMenu = document.getElementById('navbarNav');
+
+            if (toggleBtn && navMenu) {
+                toggleBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    navMenu.classList.toggle('show');
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (navMenu.classList.contains('show') && !navMenu.contains(e.target) && !toggleBtn.contains(e.target)) {
+                        navMenu.classList.remove('show');
+                    }
+                });
+            }
+
+            // تەنها بۆ کۆپیکردنی ناوی پڕۆژەکە بۆ لای ڕاستی سایدبارەکەی کۆمپیوتەر (بۆ جوانکاری)
+            setTimeout(() => {
+                const title = document.getElementById('formTitle').innerText;
+                document.getElementById('formTitleSidebar').innerText = title;
+            }, 2000);
         });
     </script>
 

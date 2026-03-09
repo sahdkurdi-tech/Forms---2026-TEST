@@ -8,7 +8,6 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dark-mode.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -33,15 +32,26 @@
             transform: scale(1.05);
         }
 
-        /* ڕێکخستنی بۆشایی سەرەوە تەنها بۆ مۆبایل */
+        /* =========================================
+           دیزاینی مینیۆی مۆبایل (Floating Menu) 
+           ========================================= */
         @media (max-width: 991px) {
             #page-content-wrapper {
                 padding-top: 100px !important;
             }
 
-            /* دیزاینی ناوەوەی مینیۆی مۆبایل */
+            .modern-navbar {
+                background: rgba(255, 255, 255, 0.85);
+                backdrop-filter: blur(15px);
+                -webkit-backdrop-filter: blur(15px);
+            }
+
+            body.dark-mode .modern-navbar {
+                background: rgba(30, 41, 59, 0.85);
+            }
+
             #navbarNav {
-                background: var(--card-bg, #fff);
+                background: #ffffff;
                 border-radius: 15px;
                 padding: 15px;
                 box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
@@ -53,10 +63,12 @@
             }
 
             body.dark-mode #navbarNav {
-                background: var(--card-dark, #1e293b);
+                background: #1e293b;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
             }
         }
 
+        /* ديزاینی تابەکان */
         .nav-tabs .nav-link {
             color: var(--text-muted);
             font-weight: bold;
@@ -67,8 +79,9 @@
             border-bottom: 3px solid var(--primary);
         }
 
+        /* ديزاینی کارتەکان (بۆ ڕووناک) */
         .case-card {
-            background: var(--card-bg);
+            background: var(--card-bg, #ffffff);
             border-radius: 12px;
             padding: 15px;
             margin-bottom: 15px;
@@ -76,30 +89,69 @@
             border: 1px solid #e2e8f0;
         }
 
-        body.dark-mode .case-card {
-            border-color: #334155;
-        }
-
         .action-btn {
             font-size: 0.85rem;
             padding: 5px 10px;
             margin: 2px;
+        }
+
+        /* =========================================
+           چارەسەری دۆخی تاریک بۆ خانەکان و کارتەکان
+           ========================================= */
+        body.dark-mode .case-card {
+            background-color: #1e293b !important;
+            border-color: #334155 !important;
+            color: #f1f5f9 !important;
+        }
+
+        body.dark-mode .case-card h6 {
+            color: #f1f5f9 !important;
+        }
+
+        body.dark-mode .case-card .border,
+        body.dark-mode .case-card .border-bottom {
+            border-color: #334155 !important;
+        }
+
+        /* خانەکانی فۆڕم (Input, Select, Textarea) لە دۆخی تاریک */
+        body.dark-mode input.form-control,
+        body.dark-mode select.form-select,
+        body.dark-mode textarea.form-control {
+            background-color: #0f172a !important;
+            border-color: #334155 !important;
+            color: #f1f5f9 !important;
+        }
+
+        body.dark-mode input.form-control::placeholder,
+        body.dark-mode textarea.form-control::placeholder {
+            color: #64748b !important;
+        }
+
+        body.dark-mode input.form-control:focus,
+        body.dark-mode select.form-select:focus,
+        body.dark-mode textarea.form-control:focus {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 0 0.25rem rgba(56, 189, 248, 0.25) !important;
+        }
+
+        /* پاشخانی لقەکان (Branch Container) لە دۆخی تاریک */
+        body.dark-mode .bg-light {
+            background-color: #0f172a !important;
         }
     </style>
 </head>
 
 <body>
 
-    <nav class="navbar modern-navbar fixed-top mx-auto mt-3 shadow-soft d-lg-none"
-        style="max-width: 92%; border-radius: 50px; z-index: 1050; background: var(--nav-bg-light); backdrop-filter: blur(15px);">
+    <nav class="navbar modern-navbar fixed-top mx-auto mt-3 shadow-sm d-lg-none"
+        style="max-width: 92%; border-radius: 50px; z-index: 1050; border: 1px solid rgba(0,0,0,0.05);">
         <div class="container-fluid px-3">
             <a class="navbar-brand d-flex align-items-center" href="index.html">
                 <img src="logo.jpg" alt="MROVDOSTAN" width="35" height="35" class="rounded-circle me-2"
                     style="object-fit: contain;">
-                <span class="fw-bold text-primary fs-6">MROVDOSTAN</span>
             </a>
 
-            <button class="navbar-toggler border-0 shadow-none p-0" type="button" aria-expanded="false">
+            <button class="navbar-toggler border-0 shadow-none p-0" type="button" id="mobileMenuToggler">
                 <i class="fa-solid fa-bars-staggered fa-lg text-primary"></i>
             </button>
 
@@ -108,7 +160,7 @@
                     <li class="nav-item w-100"><a class="nav-link fw-bold text-center" href="index.html"><i
                                 class="fa-solid fa-house me-1"></i> سەرەکی</a></li>
                     <li class="nav-item w-100"><a class="nav-link fw-bold active text-primary text-center"
-                            href="aid-board.html"><i class="fa-solid fa-hand-holding-heart me-1"></i> دابەشکردن</a></li>
+                            href="aid-board.html"><i class="fa-solid fa-hand-holding-heart me-1"></i>کەیسی نوێ</a></li>
                     <li class="nav-item w-100"><a class="nav-link fw-bold text-center" href="settings.html"><i
                                 class="fa-solid fa-gear me-1"></i> سێتینگ</a></li>
                     <li class="nav-item w-100 border-top pt-2 mt-1"><a class="nav-link fw-bold text-danger text-center"
@@ -132,7 +184,7 @@
             <div class="d-flex flex-column gap-2">
                 <a href="index.html" class="mobile-nav-item"><i class="fa-solid fa-house"></i> <span>سەرەکی</span></a>
                 <a href="aid-board.html" class="mobile-nav-item active"><i class="fa-solid fa-hand-holding-heart"></i>
-                    <span>دابەشکردن</span></a>
+                    <span>کەیسی نوێ</span></a>
                 <a href="settings.html" class="mobile-nav-item"><i class="fa-solid fa-gear"></i> <span>سێتینگ</span></a>
                 <a href="#" onclick="logout()" class="mobile-nav-item text-danger mt-5"><i
                         class="fa-solid fa-right-from-bracket"></i> <span>دەرچوون</span></a>
@@ -217,11 +269,29 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/firebase-config.js"></script>
     <script src="js/auth.js"></script>
-
-    <script src="js/mobile-menu.js"></script>
-
     <script src="js/dark-mode.js"></script>
     <script src="js/aid-board.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleBtn = document.getElementById('mobileMenuToggler');
+            const navMenu = document.getElementById('navbarNav');
+
+            if (toggleBtn && navMenu) {
+                toggleBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    navMenu.classList.toggle('show');
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (navMenu.classList.contains('show') && !navMenu.contains(e.target) && !toggleBtn.contains(e.target)) {
+                        navMenu.classList.remove('show');
+                    }
+                });
+            }
+        });
+    </script>
 
 </body>
 

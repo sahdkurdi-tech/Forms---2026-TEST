@@ -18,7 +18,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <style>
-        /* ستایلی مینیۆ */
+        /* ڕێکخستنی سایدباری کۆمپیوتەر */
         .sidebar-heading img {
             width: 80px;
             height: 80px;
@@ -30,6 +30,42 @@
 
         .sidebar-heading img:hover {
             transform: scale(1.05);
+        }
+
+        /* =========================================
+           دیزاینی مینیۆی مۆبایل (Floating Menu) 
+           ========================================= */
+        @media (max-width: 991px) {
+            #page-content-wrapper {
+                padding-top: 100px !important;
+            }
+
+            .modern-navbar {
+                background: rgba(255, 255, 255, 0.85);
+                backdrop-filter: blur(15px);
+                -webkit-backdrop-filter: blur(15px);
+            }
+
+            body.dark-mode .modern-navbar {
+                background: rgba(30, 41, 59, 0.85);
+            }
+
+            #navbarNav {
+                background: #ffffff;
+                border-radius: 15px;
+                padding: 15px;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                margin-top: 10px;
+            }
+
+            body.dark-mode #navbarNav {
+                background: #1e293b;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            }
         }
 
         /* ستایلی دروستکەری فۆڕم */
@@ -136,10 +172,38 @@
 
 <body>
 
-    <div class="sidebar-overlay" onclick="toggleMenu()"></div>
+    <nav class="navbar modern-navbar fixed-top mx-auto mt-3 shadow-sm d-lg-none"
+        style="max-width: 92%; border-radius: 50px; z-index: 1050; border: 1px solid rgba(0,0,0,0.05);">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <img src="logo.jpg" alt="MROVDOSTAN" width="35" height="35" class="rounded-circle me-2"
+                    style="object-fit: contain;">
+                <span class="fw-bold text-primary fs-6">MROVDOSTAN</span>
+            </a>
+
+            <button class="navbar-toggler border-0 shadow-none p-0" type="button" id="mobileMenuToggler">
+                <i class="fa-solid fa-bars-staggered fa-lg text-primary"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav align-items-center gap-2">
+                    <li class="nav-item w-100"><a class="nav-link fw-bold text-center" href="index.html"><i
+                                class="fa-solid fa-house me-1"></i> سەرەکی</a></li>
+                    <li class="nav-item w-100"><a class="nav-link fw-bold text-center" href="aid-board.html"><i
+                                class="fa-solid fa-hand-holding-heart me-1"></i> دابەشکردن</a></li>
+                    <li class="nav-item w-100"><a class="nav-link fw-bold active text-primary text-center"
+                            href="settings.html"><i class="fa-solid fa-gear me-1"></i> سێتینگ</a></li>
+                    <li class="nav-item w-100 border-top pt-2 mt-1"><a class="nav-link fw-bold text-danger text-center"
+                            href="#" onclick="logout()"><i class="fa-solid fa-right-from-bracket me-1"></i> دەرچوون</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
 
     <div id="wrapper">
-        <div id="sidebar-wrapper">
+        <div id="sidebar-wrapper" class="d-none d-lg-block">
             <div class="d-flex justify-content-between align-items-center mb-4 p-3">
                 <div class="sidebar-heading w-100">
                     <img src="logo.jpg" alt="MROVDOSTAN">
@@ -163,23 +227,24 @@
             </div>
         </div>
 
+
         <div id="page-content-wrapper" class="w-100 p-4">
 
-            <nav class="navbar navbar-expand-lg navbar-light bg-transparent mb-4 border-bottom pb-3">
+            <nav class="navbar navbar-expand-lg navbar-light bg-transparent mb-4 border-bottom pb-3 d-none d-lg-flex">
                 <div class="container-fluid px-0 d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <button class="btn btn-primary-custom d-lg-none me-3" id="menu-toggle" onclick="toggleMenu()">
-                            <i class="fa-solid fa-bars"></i>
-                        </button>
-                        <h4 class="fw-bold m-0 text-primary"><i class="fa-solid fa-cogs me-2"></i> سێتینگی دابەشکردن
-                        </h4>
-                    </div>
-
+                    <h4 class="fw-bold m-0 text-primary"><i class="fa-solid fa-cogs me-2"></i> سێتینگی دابەشکردن</h4>
                     <a href="settings.html" class="btn btn-outline-secondary">
                         <i class="fa-solid fa-arrow-right"></i> گەڕانەوە بۆ سێتینگ
                     </a>
                 </div>
             </nav>
+
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3 d-lg-none">
+                <h4 class="fw-bold m-0 text-primary fs-5"><i class="fa-solid fa-cogs me-2"></i> سێتینگی دابەشکردن</h4>
+                <a href="settings.html" class="btn btn-sm btn-outline-secondary">
+                    <i class="fa-solid fa-arrow-right"></i> گەڕانەوە
+                </a>
+            </div>
 
             <ul class="nav nav-pills mb-4 gap-2" id="aid-settings-tabs" role="tablist">
                 <li class="nav-item" role="presentation">
@@ -270,13 +335,26 @@
     <script src="js/auth.js"></script>
     <script src="js/dark-mode.js"></script>
     <script src="js/aid-settings.js"></script>
+
     <script>
-        function toggleMenu() {
-            const sidebar = document.getElementById('sidebar-wrapper');
-            const overlay = document.querySelector('.sidebar-overlay');
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleBtn = document.getElementById('mobileMenuToggler');
+            const navMenu = document.getElementById('navbarNav');
+
+            if (toggleBtn && navMenu) {
+                toggleBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    navMenu.classList.toggle('show');
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (navMenu.classList.contains('show') && !navMenu.contains(e.target) && !toggleBtn.contains(e.target)) {
+                        navMenu.classList.remove('show');
+                    }
+                });
+            }
+        });
     </script>
 
 </body>
