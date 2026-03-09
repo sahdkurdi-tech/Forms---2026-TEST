@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سیستەمی فۆڕمەکان</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        .sidebar-heading img {
+            width: 80px;
+            /* قەبارەی لۆگۆ وەک پەڕەی سەرەکی */
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-heading img:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar-overlay" onclick="toggleMenu()"></div>
+
+    <div id="wrapper">
+
+        <div id="sidebar-wrapper">
+            <div class="d-flex justify-content-between align-items-center mb-4 p-3">
+                <div class="sidebar-heading w-100">
+                    <img src="logo.jpg" alt="MROVDOSTAN">
+                    <span class="brand-text">MROVDOSTAN</span>
+                </div>
+            </div>
+
+            <div class="d-flex flex-column gap-2">
+                <a href="index.html" class="mobile-nav-item">
+                    <i class="fa-solid fa-house"></i> <span>سەرەکی</span>
+                </a>
+
+                <a href="aid-board.html" class="mobile-nav-item" id="navAidBoard">
+                    <i class="fa-solid fa-hand-holding-heart"></i> <span>دابەشکردن</span>
+                </a>
+
+                <a href="settings.html" class="mobile-nav-item active">
+                    <i class="fa-solid fa-gear"></i> <span>سێتینگ</span>
+                </a>
+
+                <a href="#" onclick="logout()" class="mobile-nav-item text-danger mt-5">
+                    <i class="fa-solid fa-right-from-bracket"></i> <span>دەرچوون</span>
+                </a>
+            </div>
+
+            <div class="mt-auto p-3 d-md-none text-center">
+                <small class="text-muted fw-bold">Admin Panel Control</small>
+            </div>
+        </div>
+
+        <div id="page-content-wrapper">
+
+            <nav class="navbar navbar-expand-lg navbar-light bg-transparent mb-4 border-bottom pb-3">
+                <div class="container-fluid px-0">
+                    <button class="btn btn-primary-custom d-lg-none" id="menu-toggle" onclick="toggleMenu()">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <h4 class="fw-bold m-0 text-primary">سێتینگ و کۆنترۆڵ</h4>
+                </div>
+            </nav>
+
+            <ul class="nav nav-pills mb-4 gap-2" id="pills-tab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-bold px-4 py-2 shadow-sm" id="pills-forms-tab"
+                        data-bs-toggle="pill" data-bs-target="#pills-forms">
+                        <i class="fa-solid fa-layer-group me-2"></i> فۆرمەکان
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold px-4 py-2 shadow-sm" id="pills-users-tab" data-bs-toggle="pill"
+                        data-bs-target="#pills-users">
+                        <i class="fa-solid fa-users-gear me-2"></i> بەکارهێنەران
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold px-4 py-2 shadow-sm" id="pills-backup-tab" data-bs-toggle="pill"
+                        data-bs-target="#pills-backup">
+                        <i class="fa-solid fa-database me-2"></i> باکەپ (Backup)
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a href="aid-settings.html" class="nav-link fw-bold px-4 py-2 shadow-sm text-primary"
+                        style="background-color: rgba(3, 182, 247, 0.1); border: 1px solid rgba(3, 182, 247, 0.2);">
+                        <i class="fa-solid fa-cogs me-2"></i> سێتینگی دابەشکردن
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="pills-tabContent">
+
+                <div class="tab-pane fade show active" id="pills-forms">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="modern-card p-4 h-100">
+                                <h5 class="fw-bold mb-4 text-primary"><i class="fa-solid fa-plus-circle"></i> دروستکردنی
+                                    پڕۆژە</h5>
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small fw-bold">ناوی پڕۆژە / لیست</label>
+                                    <input type="text" id="newListName"
+                                        class="form-control form-control-lg bg-light border-0">
+                                </div>
+                                <button onclick="createNewList()"
+                                    class="btn btn-primary-custom w-100 py-2">دروستکردن</button>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="modern-card p-4 h-100">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h5 class="fw-bold text-dark m-0">لیستی پڕۆژەکان</h5>
+                                    <button id="btnSaveOrder" class="btn btn-success btn-sm d-none"
+                                        onclick="saveFormOrder()">
+                                        <i class="fa-solid fa-check"></i> پاشەکەوتکردنی ڕیزبەندی
+                                    </button>
+                                </div>
+                                <div id="adminListContainer" class="d-flex flex-column gap-3">
+                                    <div class="text-center py-5 spinner-border text-primary" role="status"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="pills-users">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="modern-card p-4">
+                                <h5 class="fw-bold mb-4 text-success"><i class="fa-solid fa-user-plus"></i> زیادکردنی
+                                    کارمەند</h5>
+
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small fw-bold">ئیمەیڵ</label>
+                                    <input type="email" id="newUserEmail" class="form-control bg-light border-0"
+                                        placeholder="user@gmail.com">
+                                </div>
+
+                                <div class="p-3 bg-light rounded-3 mb-3">
+                                    <label class="form-label fw-bold mb-2 small text-uppercase text-muted">دەسەڵاتە
+                                        سەرەتاییەکان</label>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="permDelete">
+                                        <label class="form-check-label" for="permDelete">ڕێگەدان بە سڕینەوە</label>
+                                    </div>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="permEdit">
+                                        <label class="form-check-label" for="permEdit">ڕێگەدان بە دەستکاری</label>
+                                    </div>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="permExport">
+                                        <label class="form-check-label" for="permExport">ڕێگەدان بە Excel</label>
+                                    </div>
+                                    <div class="form-check form-switch border-top pt-2 mt-2">
+                                        <input class="form-check-input" type="checkbox" id="permDistribute">
+                                        <label class="form-check-label fw-bold text-primary"
+                                            for="permDistribute">ڕێگەدان بە دابەشکردن</label>
+                                    </div>
+                                </div>
+
+                                <button onclick="addUser()" class="btn btn-success w-100 shadow-sm border-0 py-2">
+                                    زیادکردن <i class="fa-solid fa-check ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-8">
+                            <div class="modern-card p-4">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h5 class="fw-bold m-0">لیستی بەکارهێنەران</h5>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table align-middle table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>ئیمەیڵ</th>
+                                                <th class="text-center">سڕینەوە</th>
+                                                <th class="text-center">دەستکاری</th>
+                                                <th class="text-center">Excel</th>
+                                                <th class="text-center">دابەشکردن</th>
+                                                <th class="text-end">کردار</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="usersTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="pills-backup">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8">
+                            <div class="modern-card p-5 text-center">
+                                <div class="mb-4 text-warning">
+                                    <i class="fa-solid fa-server fa-4x"></i>
+                                </div>
+                                <h3 class="fw-bold mb-3">باکەپ و گێڕانەوەی داتا</h3>
+                                <p class="text-muted mb-5 w-75 mx-auto">
+                                    ئەم بەشە زۆر هەستیارە. لێرە دەتوانیت کۆپییەکی تەواوی داتابەیسەکە (فۆرمەکان،
+                                    وەڵامەکان، کارمەندان) دابەزێنیت یان بیهێنیتەوە.
+                                </p>
+
+                                <div class="d-flex justify-content-center gap-4 flex-wrap">
+                                    <button id="btnBackup" onclick="createBackup()"
+                                        class="btn btn-outline-dark btn-lg px-5 py-3 shadow-sm">
+                                        <i class="fa-solid fa-download me-2"></i> هەڵگرتنی باکەپ (Export)
+                                    </button>
+
+                                    <button id="btnRestore" onclick="triggerRestore()"
+                                        class="btn btn-warning text-white btn-lg px-5 py-3 shadow-sm">
+                                        <i class="fa-solid fa-upload me-2"></i> هێنانەوەی باکەپ (Import)
+                                    </button>
+
+                                    <input type="file" id="backupFileInput" accept=".json" style="display: none;"
+                                        onchange="handleRestore(this)">
+                                </div>
+
+                                <div class="alert alert-info mt-5 text-start d-inline-block">
+                                    <small><i class="fa-solid fa-circle-info me-1"></i> تێبینی: فایلەکان بە شێوەی
+                                        <b>JSON</b> دادەبەزن و پارێزراون.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="userEditModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title fw-bold">دەستکاریکردنی دەسەڵات</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="hidden" id="editUserEmailHidden">
+                    <h6 class="text-center mb-4 fw-bold" id="editUserEmailDisplay">...</h6>
+
+                    <div class="bg-light p-3 rounded">
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="editPermDelete">
+                            <label class="form-check-label fw-bold" for="editPermDelete">دەسەڵاتی سڕینەوە</label>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="editPermEdit">
+                            <label class="form-check-label fw-bold" for="editPermEdit">دەسەڵاتی دەستکاری</label>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="editPermExport">
+                            <label class="form-check-label fw-bold" for="editPermExport">دەسەڵاتی Excel</label>
+                        </div>
+                        <div class="form-check form-switch border-top pt-3 mt-3">
+                            <input class="form-check-input" type="checkbox" id="editPermDistribute">
+                            <label class="form-check-label fw-bold text-primary" for="editPermDistribute"><i
+                                    class="fa-solid fa-share-nodes"></i> دەسەڵاتی سیستەمی دابەشکردن</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">داخستن</button>
+                    <button onclick="saveUserChanges()" id="btnSaveUser"
+                        class="btn btn-primary px-4">نوێکردنەوە</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/backup.js"></script>
+    <script src="js/dark-mode.js"></script>
+
+    <script>
+        // ٤. فەنکشنی نوێ بۆ کردنەوە و داخستنی لیست
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar-wrapper');
+            const overlay = document.querySelector('.sidebar-overlay');
+
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // --- Forms Logic (With Auto-Fix & DragDrop) ---
+        async function createNewList() {
+            const name = document.getElementById('newListName').value;
+            if (!name) return;
+            try {
+                // هێنانی ژمارەی فۆڕمەکان بۆ دانانی لە کۆتایی ڕیزبەندی
+                const snap = await db.collection("forms").get();
+                const newOrder = snap.size;
+
+                await db.collection("forms").add({
+                    title: name,
+                    fields: [],
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    order: newOrder
+                });
+                document.getElementById('newListName').value = '';
+                alert("پڕۆژەکە دروستکرا!");
+            } catch (e) { alert("Error"); }
+        }
+
+        // هێنانی فۆڕمەکان بەپێی order
+        db.collection("forms").orderBy("order", "asc").onSnapshot(async (snapshot) => {
+            const container = document.getElementById('adminListContainer');
+            container.innerHTML = "";
+
+            // Auto-Fix if Empty: پشکنین ئەگەر فۆڕم هەبێت بەڵام ئۆردەری نەبێت
+            if (snapshot.empty) {
+                const checkSnap = await db.collection("forms").get();
+                if (!checkSnap.empty) {
+                    container.innerHTML = "<div class='text-center py-5'><i class='fa-solid fa-sync fa-spin text-primary'></i> خەریکە داتاکان ڕێکدەخرێن...</div>";
+                    fixMissingOrders(checkSnap);
+                    return;
+                } else {
+                    container.innerHTML = "<div class='text-center text-muted'>هیچ لیستێک نییە</div>";
+                    return;
+                }
+            }
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                // زیادکردنی data-id و ئایکۆنی grip
+                container.innerHTML += `
+                <div class="list-group-item d-flex justify-content-between align-items-center p-3 border rounded-3 bg-white shadow-sm mb-2 hover-scale" data-id="${doc.id}">
+                    <div class="d-flex align-items-center">
+                        <i class="fa-solid fa-grip-vertical text-muted me-3" style="cursor: grab;"></i>
+                        <div class="icon-box bg-soft-primary ms-0 me-3" style="width:40px; height:40px; font-size:1rem;"><i class="fa-solid fa-list"></i></div>
+                        <h6 class="mb-0 fw-bold">${data.title}</h6>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="builder.html?id=${doc.id}" class="btn btn-light btn-sm border"><i class="fa-solid fa-pen-to-square"></i></a>
+                        <button onclick="deleteForm('${doc.id}')" class="btn btn-light btn-sm border text-danger"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>`;
+            });
+
+            initSortableList();
+        });
+
+        // Fix Old Data: چاککردنی فۆڕمە کۆنەکان
+        async function fixMissingOrders(snapshot) {
+            const batch = db.batch();
+            snapshot.docs.forEach((doc, index) => {
+                batch.update(doc.ref, { order: index });
+            });
+            await batch.commit();
+        }
+
+        // چالاککردنی SortableJS
+        function initSortableList() {
+            const el = document.getElementById('adminListContainer');
+            if (!el) return;
+            new Sortable(el, {
+                animation: 150,
+                handle: '.fa-grip-vertical',
+                ghostClass: 'bg-light',
+                onEnd: function () {
+                    const btn = document.getElementById('btnSaveOrder');
+                    btn.classList.remove('d-none');
+                    btn.classList.add('d-inline-block');
+                }
+            });
+        }
+
+        // پاشەکەوتکردنی ڕیزبەندی نوێ
+        async function saveFormOrder() {
+            const btn = document.getElementById('btnSaveOrder');
+            const items = document.querySelectorAll('#adminListContainer .list-group-item');
+
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ...';
+            btn.disabled = true;
+
+            const batch = db.batch();
+
+            items.forEach((item, index) => {
+                const docId = item.getAttribute('data-id');
+                const ref = db.collection("forms").doc(docId);
+                batch.update(ref, { order: index });
+            });
+
+            try {
+                await batch.commit();
+                Swal.fire({
+                    icon: 'success', title: 'سەرکەوتوو!', text: 'ڕیزبەندی نوێکرایەوە.', timer: 1500, showConfirmButton: false
+                });
+                btn.classList.add('d-none');
+                btn.classList.remove('d-inline-block'); // شاردنەوەی دوگمە
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> پاشەکەوتکردنی ڕیزبەندی';
+                btn.disabled = false;
+            } catch (error) {
+                console.error(error);
+                btn.disabled = false;
+            }
+        }
+
+        async function deleteForm(id) { if (confirm("دڵنیایت؟")) await db.collection("forms").doc(id).delete(); }
+
+        // --- Users Logic ---
+        async function addUser() {
+            const email = document.getElementById('newUserEmail').value.trim().toLowerCase();
+            const canDelete = document.getElementById('permDelete').checked;
+            const canEdit = document.getElementById('permEdit').checked;
+            const canExport = document.getElementById('permExport').checked;
+            const canDistribute = document.getElementById('permDistribute').checked;
+
+            if (!email) return alert("تکایە ئیمەیڵ بنووسە!");
+
+            try {
+                await db.collection("users").doc(email).set({
+                    email: email,
+                    role: 'staff',
+                    canDelete: canDelete,
+                    canEdit: canEdit,
+                    canExport: canExport,
+                    canDistribute: canDistribute,
+                    addedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert("کارمەند بە سەرکەوتوویی زیادکرا");
+                document.getElementById('newUserEmail').value = '';
+                document.getElementById('permDelete').checked = false;
+                document.getElementById('permEdit').checked = false;
+                document.getElementById('permExport').checked = false;
+                document.getElementById('permDistribute').checked = false;
+
+            } catch (e) { alert(e.message); }
+        }
+
+        let allUsersData = {};
+
+        db.collection("users").onSnapshot(snapshot => {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+            allUsersData = {};
+
+            snapshot.forEach(doc => {
+                const user = doc.data();
+                allUsersData[user.email] = user;
+
+                const isOwner = user.role === 'owner';
+                const iconTrue = '<i class="fa-solid fa-circle-check text-success fa-lg"></i>';
+                const iconFalse = '<i class="fa-solid fa-circle-xmark text-muted opacity-25 fa-lg"></i>';
+
+                tbody.innerHTML += `
+                <tr>
+                    <td class="fw-bold text-dark">${user.email} ${isOwner ? '<span class="badge bg-primary ms-2">خاوەن</span>' : ''}</td>
+                    <td class="text-center">${user.canDelete || isOwner ? iconTrue : iconFalse}</td>
+                    <td class="text-center">${user.canEdit || isOwner ? iconTrue : iconFalse}</td>
+                    <td class="text-center">${user.canExport || isOwner ? iconTrue : iconFalse}</td>
+                    <td class="text-center">${user.canDistribute || isOwner ? iconTrue : iconFalse}</td>
+                    <td class="text-end">
+                        ${!isOwner ? `
+                            <div class="d-flex gap-2 justify-content-end">
+                                <button onclick="openEditUserModal('${user.email}')" class="btn btn-sm btn-outline-primary" title="دەستکاری"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="removeUser('${user.email}')" class="btn btn-sm btn-outline-danger" title="سڕینەوە"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        ` : '-'}
+                    </td>
+                </tr>`;
+            });
+        });
+
+        function openEditUserModal(email) {
+            const user = allUsersData[email];
+            if (!user) return;
+            document.getElementById('editUserEmailHidden').value = email;
+            document.getElementById('editUserEmailDisplay').innerText = email;
+            document.getElementById('editPermDelete').checked = user.canDelete || false;
+            document.getElementById('editPermEdit').checked = user.canEdit || false;
+            document.getElementById('editPermExport').checked = user.canExport || false;
+            document.getElementById('editPermDistribute').checked = user.canDistribute || false;
+            new bootstrap.Modal(document.getElementById('userEditModal')).show();
+        }
+
+        async function saveUserChanges() {
+            const email = document.getElementById('editUserEmailHidden').value;
+            const btn = document.getElementById('btnSaveUser');
+            const updates = {
+                canDelete: document.getElementById('editPermDelete').checked,
+                canEdit: document.getElementById('editPermEdit').checked,
+                canExport: document.getElementById('editPermExport').checked,
+                canDistribute: document.getElementById('editPermDistribute').checked
+            };
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> چاوەڕوانبە...';
+            try {
+                await db.collection("users").doc(email).update(updates);
+                bootstrap.Modal.getInstance(document.getElementById('userEditModal')).hide();
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'دەسەڵاتەکان نوێکرانەوە', showConfirmButton: false, timer: 1500 });
+            } catch (error) {
+                console.error(error);
+                alert("هەڵەیەک ڕوویدا: " + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'نوێکردنەوە';
+            }
+        }
+
+        async function removeUser(email) { if (confirm("دڵنیایت لە سڕینەوەی ئەم کارمەندە؟")) await db.collection("users").doc(email).delete(); }
+    </script>
+</body>
+
+</html>

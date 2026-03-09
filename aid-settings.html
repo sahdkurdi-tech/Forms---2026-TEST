@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ڕێکخستنی سیستەمی دابەشکردن</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        /* ستایلی مینیۆ */
+        .sidebar-heading img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-heading img:hover {
+            transform: scale(1.05);
+        }
+
+        /* ستایلی دروستکەری فۆڕم */
+        .toolbox-item {
+            background: var(--card-bg);
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: grab;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .toolbox-item:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .toolbox-item i {
+            margin-left: 8px;
+            width: 20px;
+            text-align: center;
+        }
+
+        body.dark-mode .toolbox-item {
+            border-color: #334155;
+        }
+
+        #form-canvas {
+            min-height: 400px;
+            background: rgba(0, 0, 0, 0.02);
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        body.dark-mode #form-canvas {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: #334155;
+        }
+
+        .form-element {
+            background: var(--card-bg);
+            border: 1px solid #e2e8f0;
+            border-right: 4px solid var(--primary);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        body.dark-mode .form-element {
+            border-color: #334155;
+            border-right-color: var(--primary);
+        }
+
+        .nested-container {
+            min-height: 60px;
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px dashed #94a3b8;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        body.dark-mode .nested-container {
+            background: rgba(0, 0, 0, 0.2);
+            border-color: #475569;
+        }
+
+        .element-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: grab;
+        }
+
+        .element-actions button {
+            background: none;
+            border: none;
+            color: #f87171;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .form-control-custom {
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 6px 10px;
+            width: 100%;
+            margin-top: 5px;
+            background: transparent;
+            color: inherit;
+        }
+
+        body.dark-mode .form-control-custom {
+            border-color: #475569;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar-overlay" onclick="toggleMenu()"></div>
+
+    <div id="wrapper">
+        <div id="sidebar-wrapper">
+            <div class="d-flex justify-content-between align-items-center mb-4 p-3">
+                <div class="sidebar-heading w-100">
+                    <img src="logo.jpg" alt="MROVDOSTAN">
+                    <span class="brand-text">MROVDOSTAN</span>
+                </div>
+            </div>
+
+            <div class="d-flex flex-column gap-2">
+                <a href="index.html" class="mobile-nav-item">
+                    <i class="fa-solid fa-house"></i> <span>سەرەکی</span>
+                </a>
+                <a href="aid-board.html" class="mobile-nav-item">
+                    <i class="fa-solid fa-hand-holding-heart"></i> <span>دابەشکردن</span>
+                </a>
+                <a href="settings.html" class="mobile-nav-item active">
+                    <i class="fa-solid fa-gear"></i> <span>سێتینگ</span>
+                </a>
+                <a href="#" onclick="logout()" class="mobile-nav-item text-danger mt-5">
+                    <i class="fa-solid fa-right-from-bracket"></i> <span>دەرچوون</span>
+                </a>
+            </div>
+        </div>
+
+        <div id="page-content-wrapper" class="w-100 p-4">
+
+            <nav class="navbar navbar-expand-lg navbar-light bg-transparent mb-4 border-bottom pb-3">
+                <div class="container-fluid px-0 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <button class="btn btn-primary-custom d-lg-none me-3" id="menu-toggle" onclick="toggleMenu()">
+                            <i class="fa-solid fa-bars"></i>
+                        </button>
+                        <h4 class="fw-bold m-0 text-primary"><i class="fa-solid fa-cogs me-2"></i> سێتینگی دابەشکردن
+                        </h4>
+                    </div>
+
+                    <a href="settings.html" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-arrow-right"></i> گەڕانەوە بۆ سێتینگ
+                    </a>
+                </div>
+            </nav>
+
+            <ul class="nav nav-pills mb-4 gap-2" id="aid-settings-tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-bold px-4 py-2 shadow-sm" id="tab-categories"
+                        data-bs-toggle="pill" data-bs-target="#content-categories" type="button" role="tab">
+                        <i class="fa-solid fa-layer-group me-2"></i> جۆری بەشەکان
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold px-4 py-2 shadow-sm" id="tab-designer" data-bs-toggle="pill"
+                        data-bs-target="#content-designer" type="button" role="tab">
+                        <i class="fa-solid fa-pen-ruler me-2"></i> دیزاینکردنی فۆڕمی کەیسەکان
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="aid-settings-tabContent">
+
+                <div class="tab-pane fade show active" id="content-categories" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-6 mx-auto">
+                            <div class="modern-card p-4">
+                                <h5 class="fw-bold mb-3"><i class="fa-solid fa-layer-group text-primary me-2"></i> جۆری
+                                    بەشەکان</h5>
+                                <p class="text-muted small">ئەو بەشانە زیاد بکە کە کەیسەکانی بۆ دابەش دەکرێت.</p>
+                                <div class="input-group mb-3">
+                                    <input type="text" id="catName" class="form-control"
+                                        placeholder="ناوی بەشەکە بنووسە... (نموونە: بەشی بێ باوکان)">
+                                    <button class="btn btn-primary" onclick="addCategory()"><i
+                                            class="fa-solid fa-plus"></i> زیادکردن</button>
+                                </div>
+                                <ul class="list-group mt-3" id="categoriesList"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="content-designer" role="tabpanel">
+                    <div class="modern-card p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                            <h5 class="fw-bold m-0"><i class="fa-solid fa-pen-ruler text-primary me-2"></i> دروستکەری
+                                فۆڕم بە شێوازی ڕاکێشان</h5>
+                            <button class="btn btn-success px-4 fw-bold" onclick="saveAidForm()">
+                                <i class="fa-solid fa-floppy-disk me-2"></i> پاشەکەوتکردنی فۆڕم
+                            </button>
+                        </div>
+
+                        <div class="row g-4">
+                            <div class="col-lg-3">
+                                <div class="p-3 sticky-top rounded border"
+                                    style="top: 20px; background: rgba(0,0,0,0.02);">
+                                    <h6 class="fw-bold mb-3 text-muted border-bottom pb-2">جۆری خانەکان</h6>
+                                    <div id="toolbox">
+                                        <div class="toolbox-item" data-type="text"><i
+                                                class="fa-solid fa-font text-primary"></i> دەقی کورت</div>
+                                        <div class="toolbox-item" data-type="number"><i
+                                                class="fa-solid fa-hashtag text-success"></i> ژمارە</div>
+                                        <div class="toolbox-item" data-type="textarea"><i
+                                                class="fa-solid fa-align-right text-warning"></i> دەقی درێژ (تێبینی)
+                                        </div>
+                                        <div class="toolbox-item" data-type="date"><i
+                                                class="fa-regular fa-calendar text-info"></i> بەروار</div>
+                                        <div class="toolbox-item border-primary" data-type="select_one"><i
+                                                class="fa-regular fa-caret-square-down text-danger"></i> هەڵبژاردن (بۆ
+                                            لقەکان)</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-9">
+                                <div id="form-canvas">
+                                    <div class="text-center text-muted mt-5" id="empty-msg">
+                                        <i class="fa-solid fa-layer-group fa-3x mb-3 opacity-25"></i>
+                                        <p>خانەکان لە لای ڕاستەوە ڕابکێشە بۆ ئێرە...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dark-mode.js"></script>
+    <script src="js/aid-settings.js"></script>
+    <script>
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar-wrapper');
+            const overlay = document.querySelector('.sidebar-overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+    </script>
+
+</body>
+
+</html>

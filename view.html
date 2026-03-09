@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>پڕکردنەوەی فۆڕم</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="logo.jpg">
+<link rel="apple-touch-icon" sizes="180x180" href="logo.jpg">
+<meta name="theme-color" content="#ffffff">
+    
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.8/jquery.inputmask.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap');
+        
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: #f1f5f9; /* پاشبنەمایەکی کاڵتر */
+            color: #334155;
+            min-height: 100vh;
+        }
+
+        /* --- دیزاینی کارت و هەدەر (Floating Icon) --- */
+        .form-container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px -5px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+            position: relative;
+            margin-top: 80px !important; /* بۆشایی بۆ ئایکۆنەکە */
+            overflow: visible !important; /* گرنگە بۆ دەرپەڕینی ئایکۆن */
+        }
+
+        .modern-header {
+            background: #ffffff;
+            padding: 60px 30px 20px; /* بۆشایی سەرەوە زۆرە */
+            text-align: center;
+            border-bottom: 1px solid #f1f5f9;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .header-icon-box {
+            width: 100px;
+            height: 100px;
+            background: #4f46e5; /* ڕەنگی فەرمی */
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            position: absolute;
+            top: -50px; /* نیوەی دەچێتە دەرەوە */
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4);
+            border: 6px solid #f1f5f9; /* چوارچێوەیەک بە ڕەنگی پاشبنەمای پەڕەکە */
+            z-index: 10;
+        }
+
+        .modern-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+
+        .modern-subtitle {
+            color: #64748b;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .form-body {
+            padding: 40px 30px;
+        }
+
+        /* --- پەیامی داخراوە --- */
+        .inactive-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+        }
+        .inactive-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        /* --- دوگمەی ناردن --- */
+        .btn-submit {
+            background: #4f46e5;
+            color: white;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            width: 100%;
+            border: none;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+        }
+        .btn-submit:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+        }
+
+        /* ئەمە زیاد بکە بۆ ئەوەی جوڵەی هاتنە ناوەوەی هەبێت */
+.animate-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+    </style>
+</head>
+<body>
+
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="text-center bg-white p-5 rounded-4 shadow">
+        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
+        <h5 class="fw-bold">تکایە چاوەڕێبە...</h5>
+        <p class="text-muted small m-0">فۆڕمەکە ئامادە دەکرێت</p>
+    </div>
+</div>
+
+<div id="inactiveMessage" class="container d-none">
+    <div class="inactive-wrapper animate-up">
+        <div class="inactive-card">
+            <div class="mb-4">
+                <i class="fa-solid fa-lock text-secondary fa-4x opacity-25"></i>
+            </div>
+            <h2 class="fw-bold text-dark mb-3">فۆڕمەکە داخراوە</h2>
+            <p class="text-muted mb-4">ببورە، ئەم فۆڕمە لە ئێستادا ناچاڵاک کراوە و وەڵام وەرناگرێت. تکایە پەیوەندی بە بەڕێوەبەرەوە بکە.</p>
+            <div class="p-3 bg-light rounded text-secondary small border">
+                <i class="fa-solid fa-shield-halved me-1"></i> Mrovdostan Security
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="mainFormContainer" class="container pb-5 d-none">
+    <div class="form-container animate-up">
+        
+        <div class="modern-header">
+            <div class="header-icon-box">
+                <i class="fa-solid fa-file-contract"></i>
+            </div>
+            <h1 id="formTitleDisplay" class="modern-title">...</h1>
+            <div class="modern-subtitle">فۆڕمی تۆمارکردنی زانیاری</div>
+        </div>
+        
+        <div class="form-body">
+            <form id="publicForm">
+                <div id="dynamicInputs" class="d-flex flex-column gap-4">
+                    </div>
+
+                <div class="mt-5 pt-3 border-top text-center">
+                    <button type="submit" id="submitBtn" class="btn-submit">
+                        ناردنی زانیاری <i class="fa-regular fa-paper-plane ms-2"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+    </div>
+    
+    <div class="text-center text-muted small mt-4 opacity-50">
+        Powered by Mrovdostan
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
+<script src="js/firebase-config.js"></script>
+<script src="js/view.js"></script>
+<script src="js/dark-mode.js"></script>
+
+</body>
+</html>

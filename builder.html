@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دروستکەری فۆرمی پێشکەوتوو</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap');
+        body { font-family: 'Vazirmatn', sans-serif; background-color: #f3f4f6; }
+
+        /* ستایلی گشتی */
+        .toolbox-item {
+            background: white; border: 1px solid #dee2e6; padding: 12px; margin-bottom: 8px;
+            border-radius: 8px; cursor: grab; display: flex; align-items: center; gap: 10px; font-weight: 500;
+        }
+        .toolbox-item:hover { background: #eef2ff; border-color: #6366f1; transform: translateX(-5px); }
+        .toolbox-item i { color: #6366f1; }
+
+        #form-canvas { min-height: 500px; background: white; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 20px; }
+        
+        /* ستایلی خانەکان */
+        .form-field {
+            background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px;
+            margin-bottom: 15px; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            transition: all 0.2s;
+        }
+        .form-field:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-color: #6366f1; }
+
+        .editable-label {
+            border-bottom: 1px dashed #ccc; padding: 2px 5px; cursor: text; font-weight: bold; width: 100%;
+        }
+        .editable-label:focus { outline: none; border-bottom: 2px solid #6366f1; background: #f8fafc; }
+
+        /* --- ناوچەی مەرجەکان (Conditional Logic Zones) --- */
+        .branches-wrapper { margin-top: 15px; }
+        
+        .condition-zone {
+            margin-top: 10px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-right: 4px solid #ec4899; /* Pink Line */
+            margin-right: 15px;
+        }
+        .condition-title {
+            font-size: 0.9rem; color: #ec4899; font-weight: bold; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .condition-container {
+            min-height: 60px;
+            background: rgba(255,255,255,0.7);
+            border: 1px dashed #cbd5e1;
+            border-radius: 6px;
+            padding: 10px;
+        }
+        .condition-container:empty::before {
+            content: 'پرسیارەکانی ئەم بژاردەیە لێرە دابنێ...';
+            display: block; text-align: center; font-size: 0.8rem; color: #94a3b8; padding-top: 15px;
+        }
+
+        .sortable-ghost { opacity: 0.4; background: #e0e7ff; border: 2px dashed #6366f1; }
+
+        /* دوگمەی پەیستی جوڵاو */
+        .fab-paste {
+            position: fixed;
+            bottom: 30px;
+            left: 30px; /* لای چەپ دەبێت */
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #6366f1; /* ڕەنگی مۆر */
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            z-index: 1050;
+            display: none; /* سەرەتا دیار نامێنێت */
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .fab-paste:hover {
+            transform: scale(1.1) rotate(5deg);
+            background-color: #4f46e5;
+        }
+
+        .fab-paste:active {
+            transform: scale(0.95);
+        }
+
+        /* --- ستایلی دوگمەی زیادکردن لەنێوان خانەکان --- */
+        .field-add-zone {
+            position: absolute;
+            bottom: -15px; /* دەکەوێتە سەر هێڵی خوارەوە */
+            left: 0; 
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            opacity: 0; /* سەرەتا دیار نییە */
+            transition: opacity 0.2s ease-in-out;
+            z-index: 10;
+            pointer-events: none; /* بۆ ئەوەی ڕێگری لە ماوس نەکات کاتێک دیار نییە */
+        }
+
+        /* کاتێک ماوس دەچێتە سەر خانەکە، دوگمەکە دەربکەوێت */
+        .form-field:hover .field-add-zone {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .btn-paste-here {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #6366f1;
+            color: white;
+            border: 2px solid white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-paste-here:hover {
+            transform: scale(1.15);
+            background-color: #4f46e5;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container-fluid py-4 px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded shadow-sm">
+        <div class="d-flex align-items-center gap-3">
+            <a href="index.html" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-right"></i></a>
+            <div>
+                <h5 class="m-0 fw-bold text-primary">دروستکەری فۆرمی مەرجدار</h5>
+                <small class="text-muted" id="listNameDisplay">تکایە چاوەڕوان بە...</small>
+            </div>
+        </div>
+        
+        <div class="d-flex gap-2">
+            <button onclick="pasteField()" class="btn btn-outline-primary px-3" title="لکاندنی خانەی کۆپیکراو">
+                <i class="fa-regular fa-clipboard me-2"></i> پەیست
+            </button>
+            
+            <button onclick="saveFormStructure()" class="btn btn-success px-4" id="saveBtn">
+                <i class="fa-solid fa-floppy-disk me-2"></i> پاشەکەوتکردن
+            </button>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-lg-3">
+            <div class="bg-white p-3 rounded shadow-sm sticky-top" style="top: 20px;">
+                <h6 class="text-muted fw-bold mb-3">جۆری خانەکان</h6>
+                <div id="toolbox">
+                    <div class="toolbox-item" data-type="text"><i class="fa-solid fa-font"></i> دەقی کورت</div>
+                    <div class="toolbox-item" data-type="number"><i class="fa-solid fa-hashtag"></i> ژمارە</div>
+                    <div class="toolbox-item" data-type="date"><i class="fa-regular fa-calendar"></i> بەروار</div>
+                    <div class="toolbox-item" data-type="select_one"><i class="fa-solid fa-caret-down"></i> لیستی هەڵبژاردن</div>
+                    <div class="toolbox-item" data-type="select_many"><i class="fa-solid fa-check-double"></i> فرە هەڵبژاردن</div>
+                    <div class="toolbox-item" data-type="photo"><i class="fa-regular fa-image"></i> وێنە</div>
+                    <div class="toolbox-item" data-type="fingerprint"><i class="fa-solid fa-fingerprint"></i>واژۆی ئەلیکترۆنی</div>
+                    <div class="toolbox-item" data-type="note"><i class="fa-solid fa-align-right"></i> تێبینی</div>
+                </div>
+                <div class="alert alert-info mt-3 small">
+                    <i class="fa-solid fa-info-circle"></i>
+                    بۆ دروستکردنی پرسیار لەناو پرسیار، سەرەتا <b>"لیستی هەڵبژاردن"</b> بەکاربهێنە، پاشان دوگمەی <b>"دروستکردنی لقەکان"</b> دابگرە.
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div id="form-canvas">
+                <div class="text-center text-muted mt-5" id="empty-msg">
+                    <i class="fa-solid fa-layer-group fa-3x mb-3 opacity-25"></i>
+                    <p>خانەکان لە لای ڕاستەوە ڕابکێشە بۆ ئێرە...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<button onclick="pasteField()" class="fab-paste" id="floatingPasteBtn" title="لکاندن (Paste)">
+    <i class="fa-regular fa-clipboard"></i>
+</button>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script> 
+<script src="js/builder.js"></script>
+<script src="js/dark-mode.js"></script>
+
+</body>
+</html>
