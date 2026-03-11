@@ -48,17 +48,9 @@
         }
 
         @keyframes gradientBG {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         /* شێوە بازنەییەکانی پشتەوە */
@@ -88,13 +80,8 @@
         }
 
         @keyframes floatBlob {
-            0% {
-                transform: translateY(0) scale(1);
-            }
-
-            100% {
-                transform: translateY(-30px) scale(1.1);
-            }
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-30px) scale(1.1); }
         }
 
         /* --- بۆکسی چوونە ژوورەوە --- */
@@ -107,26 +94,17 @@
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            /* هێڵێکی زۆر کاڵ بۆ مانەوەی شێوەکە */
             border-radius: 24px;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
             z-index: 10;
             text-align: center;
             animation: fadeInCard 1s ease-out;
             isolation: isolate;
-            /* پاراستنی ڕیزبەندی لایەرەکان */
         }
 
         @keyframes fadeInCard {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* --- هێڵە سپییە سوڕاوەکەی دەوروبەری --- */
@@ -135,7 +113,6 @@
             inset: 0;
             border-radius: 24px;
             padding: 2px;
-            /* ئەستووری هێڵە سوڕاوەکە، دەتوانیت زیادی بکەیت */
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
@@ -151,7 +128,6 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            /* دروستکردنی دوو ڕووناکی سپی کە دەسوڕێنەوە */
             background: conic-gradient(from 0deg,
                     transparent 0%,
                     transparent 35%,
@@ -163,9 +139,7 @@
         }
 
         @keyframes spinBorder {
-            100% {
-                transform: rotate(360deg);
-            }
+            100% { transform: rotate(360deg); }
         }
 
         /* --- لۆگۆ --- */
@@ -186,13 +160,8 @@
         }
 
         @keyframes floatLogo {
-            0% {
-                transform: translateY(0px);
-            }
-
-            100% {
-                transform: translateY(-10px);
-            }
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-10px); }
         }
 
         h2 {
@@ -277,11 +246,35 @@
             color: var(--text-light);
         }
 
+        /* --- بەشی نوێ: ئیمەیڵەکەم بیربێتەوە --- */
+        .remember-me-box {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+            direction: rtl;
+        }
+
+        .remember-me-box input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin-left: 8px;
+            cursor: pointer;
+            accent-color: var(--secondary-color);
+        }
+
+        .remember-me-box label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
         /* --- دوگمە --- */
         .btn-login {
             width: 100%;
             padding: 14px;
-            margin-top: 10px;
+            margin-top: 5px;
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             border: none;
             color: #fff;
@@ -324,7 +317,6 @@
 
             .spinning-border {
                 border-radius: 20px;
-                /* دەبێت ئەمیش لەگەڵ کارتەکە خڕ ببێتەوە */
             }
 
             .logo-img {
@@ -384,6 +376,11 @@
                 </button>
             </div>
 
+            <div class="remember-me-box">
+                <input type="checkbox" id="rememberMe">
+                <label for="rememberMe">ئیمەیڵەکەم بیربێتەوە</label>
+            </div>
+
             <button type="submit" id="loginBtn" class="btn-login">
                 چوونە ژوورەوە
             </button>
@@ -414,12 +411,24 @@
             }
         }
 
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
+        // کاتێک پەڕەکە دەکرێتەوە، پشکنین بکە بزانە پێشتر ئیمەیڵی سەیڤ کردووە
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedEmail = localStorage.getItem("rememberedEmail");
+            if (savedEmail) {
+                document.getElementById('email').value = savedEmail;
+                document.getElementById('rememberMe').checked = true;
+            }
+        });
+
+        // گۆڕینی فەنکشنی چوونەژوورەوە بۆ شێوازی Async / Await بۆ ڕێکوپێکی زیاتر
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const emailInput = document.getElementById('email').value;
             const email = emailInput.trim().toLowerCase();
             const password = document.getElementById('password').value;
+            const rememberMeChecked = document.getElementById('rememberMe').checked;
+            
             const btn = document.getElementById('loginBtn');
             const errorDiv = document.getElementById('errorMsg');
 
@@ -427,32 +436,43 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> خەریکە...';
 
-            firebase.auth().signInWithEmailAndPassword(email, password)
-                .then(async (userCredential) => {
-                    try {
-                        const cleanEmail = userCredential.user.email.toLowerCase();
-                        const userDoc = await db.collection("users").doc(cleanEmail).get();
+            try {
+                // ١. دڵنیابوون لەوەی دۆخی لۆگین بە هەمیشەیی دەمێنێتەوە بۆ ئەوەی دوای نوێکردنەوەش (Vercel) کێشە دروست نەبێت
+                await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-                        if (userDoc.exists) {
-                            btn.style.background = '#28a745';
-                            btn.style.boxShadow = '0 4px 15px rgba(40, 167, 69, 0.4)';
-                            btn.innerHTML = '<i class="fa-solid fa-check me-2"></i> سەرکەوتووبوو';
-                            setTimeout(() => window.location.href = "index.html", 800);
-                        } else {
-                            throw new Error(`چوونەژوورەوە ڕەتکرایەوە بۆ: ${cleanEmail}`);
-                        }
-                    } catch (err) {
-                        showError(err.message);
-                        await firebase.auth().signOut();
+                // ٢. هەوڵدان بۆ چوونەژوورەوە
+                const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+                const cleanEmail = userCredential.user.email.toLowerCase();
+                
+                // ٣. هێنانی زانیاری کەسەکە لە داتابەیس بۆ ئەوەی بزانین ڕۆڵی هەیە
+                const userDoc = await db.collection("users").doc(cleanEmail).get();
+
+                if (userDoc.exists) {
+                    
+                    // ٤. ئەگەر چێکبۆکسەکەی هەڵبژاردبوو، ئیمەیڵەکەی پاشەکەوت بکە، ئەگەرنا بیسڕەوە
+                    if (rememberMeChecked) {
+                        localStorage.setItem("rememberedEmail", cleanEmail);
+                    } else {
+                        localStorage.removeItem("rememberedEmail");
                     }
-                })
-                .catch((error) => {
-                    let msg = "هەڵەیەک ڕوویدا";
-                    if (error.code === 'auth/user-not-found') msg = "بەکارهێنەر نەدۆزرایەوە";
-                    else if (error.code === 'auth/wrong-password') msg = "وشەی نهێنی هەڵەیە";
-                    else msg = error.message;
-                    showError(msg);
-                });
+
+                    btn.style.background = '#28a745';
+                    btn.style.boxShadow = '0 4px 15px rgba(40, 167, 69, 0.4)';
+                    btn.innerHTML = '<i class="fa-solid fa-check me-2"></i> سەرکەوتووبوو';
+                    setTimeout(() => window.location.href = "index.html", 800);
+                } else {
+                    throw new Error(`چوونەژوورەوە ڕەتکرایەوە بۆ: ${cleanEmail}`);
+                }
+            } catch (error) {
+                let msg = "هەڵەیەک ڕوویدا";
+                if (error.code === 'auth/user-not-found') msg = "بەکارهێنەر نەدۆزرایەوە";
+                else if (error.code === 'auth/wrong-password') msg = "وشەی نهێنی هەڵەیە";
+                else msg = error.message;
+                showError(msg);
+                
+                // دەرچوون لە ئەکاونت ئەگەر لە داتابەیس تۆمار نەکرابوو بەڵام لە ئۆتێنتیکەیشن هەبوو
+                await firebase.auth().signOut();
+            }
 
             function showError(msg) {
                 errorDiv.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${msg}`;
