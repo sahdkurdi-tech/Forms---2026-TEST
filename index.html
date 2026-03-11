@@ -40,7 +40,7 @@
         }
 
         /* =========================================
-           دیزاینی زیکرەکان (Zikr Box)
+           دیزاینی زیکرەکان (Zikr Box) بە ڕووناکییەوە
            ========================================= */
         .zikr-box {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
@@ -56,15 +56,36 @@
             min-height: 120px;
         }
 
-        /* باکگراوندی ڕووناک بۆ دۆخی ئاسایی */
+        .zikr-box::before,
+        .zikr-box::after {
+            content: '';
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            filter: blur(40px);
+            z-index: 0;
+            opacity: 0.6;
+        }
+
+        .zikr-box::before {
+            background: rgba(56, 189, 248, 0.4);
+            top: -50px;
+            right: -50px;
+        }
+
+        .zikr-box::after {
+            background: rgba(16, 185, 129, 0.3);
+            bottom: -50px;
+            left: -50px;
+        }
+
         body:not(.dark-mode) .zikr-box {
             background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
             border: 1px solid #e2e8f0;
         }
 
-        /* شێوەی جوانکاری لە پشتەوەی زیکرەکان */
-        .zikr-box::before {
-            content: '\f66b'; 
+        .zikr-bg-icon {
             font-family: "Font Awesome 6 Free";
             font-weight: 900;
             position: absolute;
@@ -73,6 +94,7 @@
             right: -20px;
             bottom: -30px;
             transform: rotate(-15deg);
+            z-index: 1;
         }
 
         .zikr-text {
@@ -82,6 +104,7 @@
             line-height: 1.6;
             transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
             text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 2;
         }
 
         body:not(.dark-mode) .zikr-text {
@@ -99,29 +122,33 @@
         }
 
         /* =========================================
-           دیزاینی مینیۆی مۆبایل بە ڕووناکی سوڕاوە
+           دیزاینی مینیۆی مۆبایل بە ڕووناکی سوڕاوە (جێگیرکراو)
            ========================================= */
         @media (max-width: 991px) {
             #page-content-wrapper {
-                padding-top: 90px !important;
+                padding-top: 100px !important; /* بۆشایی بۆ خوارەوەی مینیۆکە */
             }
 
-            /* ئەنیمەیشنی سوڕانەوەی ڕووناکییەکە */
             @keyframes spinLight {
                 0% { transform: rotate(0deg); }
                 100% { transform: rotate(360deg); }
             }
 
-            /* باکسی دەرەوەی مینیۆکە */
+            /* باکسی دەرەوەی مینیۆکە (جێگیرکراوە) */
             .modern-navbar {
                 background: transparent !important;
                 border: none !important;
                 box-shadow: none !important;
-                padding: 2px; /* ئەمە ئەستووری هێڵە ڕووناکییەکەیە */
+                padding: 2px;
                 border-radius: 52px;
-                position: relative;
+                position: fixed; /* لە کاتی سکڕۆڵ جێگیر دەبێت */
+                top: 15px;
+                left: 0;
+                right: 0;
+                margin-left: auto;
+                margin-right: auto;
                 z-index: 1050;
-                overflow: hidden; /* بۆ ئەوەی ڕووناکییەکە لە لێوارەکان نەچێتە دەرەوە */
+                overflow: hidden;
                 transition: border-radius 0.3s ease;
             }
 
@@ -130,25 +157,24 @@
                 content: "";
                 position: absolute;
                 width: 200%;
-                height: 1500px; /* زۆر گەورە بۆ ئەوەی بەشی کاتی کرانەوەش بکات */
+                height: 1500px;
                 top: 50%;
                 left: 50%;
                 margin-left: -100%;
                 margin-top: -750px;
-                /* دیزاینی دوو ڕووناکییەکە */
                 background: conic-gradient(
                     transparent 0%, 
                     transparent 40%, 
-                    #ffffff 50%, /* ڕووناکی یەکەم */
+                    #ffffff 50%, 
                     transparent 60%, 
                     transparent 90%, 
-                    #ffffff 100% /* ڕووناکی دووەم */
+                    #ffffff 100% 
                 );
                 animation: spinLight 3s linear infinite;
                 z-index: -1;
             }
 
-            /* بەشە سەرەکییەکەی ناوەوەی مینیۆکە کە داتاکان لەخۆ دەگرێت */
+            /* بەشە سەرەکییەکەی ناوەوەی مینیۆکە */
             .navbar-inner-bg {
                 background: rgba(255, 255, 255, 0.95);
                 backdrop-filter: blur(15px);
@@ -161,7 +187,6 @@
                 justify-content: space-between;
                 padding: 8px 15px;
                 transition: border-radius 0.3s ease;
-                /* سێبەری ژێر مینیۆکە بۆ ئەوەی ڕووناکیە سپییەکە باشتر دەربکەوێت */
                 box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             }
 
@@ -170,7 +195,7 @@
                 box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
             }
 
-            /* کاتێک مینیۆکە دەکرێتەوە خڕییەکەی دەگۆڕێت بۆ شێوەی درێژکۆلە */
+            /* کاتێک مینیۆکە دەکرێتەوە خڕییەکەی دەگۆڕێت */
             .modern-navbar.menu-open {
                 border-radius: 22px;
             }
@@ -193,6 +218,7 @@
                 font-size: 1.4rem;
             }
             
+            /* ڕێکخستنی دوگمەکانی مینیۆی مۆبایل بۆ ئەوەی هەموویان یەک قەبارە بن */
             #navbarNav .navbar-nav {
                 width: 100%;
                 padding: 0 5px;
@@ -234,12 +260,41 @@
                 border-color: rgba(56, 189, 248, 0.3);
             }
         }
+
+        /* =========================================
+           گۆڕینی ڕەنگی ڕووناکی مینیۆکە
+           ========================================= */
+        @media (max-width: 991px) {
+            /* ڕەنگی شینی لۆگۆکە بۆ دۆخی ئاسایی (ڕووناک) */
+            .modern-navbar::before {
+                background: conic-gradient(
+                    transparent 0%, 
+                    transparent 40%, 
+                    #03b6f7 50%, /* ڕەنگی لۆگۆ */
+                    transparent 60%, 
+                    transparent 90%, 
+                    #03b6f7 100% /* ڕەنگی لۆگۆ */
+                ) !important;
+            }
+
+            /* ڕەنگی سپی بۆ دۆخی تاریک (بۆ ئەوەی زەق بێت) */
+            body.dark-mode .modern-navbar::before {
+                background: conic-gradient(
+                    transparent 0%, 
+                    transparent 40%, 
+                    #ffffff 50%, /* ڕەنگی سپی */
+                    transparent 60%, 
+                    transparent 90%, 
+                    #ffffff 100% /* ڕەنگی سپی */
+                ) !important;
+            }
+        }
     </style>
 </head>
 
 <body>
 
-    <nav class="navbar modern-navbar fixed-top mx-auto mt-3 d-lg-none" style="max-width: 92%;">
+    <nav class="navbar modern-navbar mx-auto d-lg-none" style="max-width: 92%;">
         <div class="navbar-inner-bg">
             <a class="navbar-brand d-flex align-items-center m-0" href="index.html">
                 <img src="logo.jpg" alt="MROVDOSTAN" width="35" height="35" class="rounded-circle me-2"
@@ -334,6 +389,7 @@
             <div class="row justify-content-center mb-5">
                 <div class="col-md-8 col-lg-6">
                     <div class="zikr-box">
+                        <i class="fa-solid fa-quran zikr-bg-icon"></i>
                         <div id="zikrDisplay" class="zikr-text zikr-fade-in">سُبْحَانَ اللّٰهِ</div>
                     </div>
                 </div>
@@ -358,7 +414,6 @@
     <script src="js/dark-mode.js"></script>
 
     <script>
-        // فەنکشنی پیشاندانی نامەی (بەم زووانە) بۆ دوگمەی پڕۆفایل
         function showComingSoonAlert(e) {
             e.preventDefault(); 
             Swal.fire({
@@ -370,9 +425,6 @@
             });
         }
 
-        // ===============================================
-        // سیستەمی گۆڕینی زیکرەکان
-        // ===============================================
         const zikrs = [
             "سُبْحَانَ اللّٰهِ",
             "الْحَمْدُ لِلّٰهِ",
@@ -402,9 +454,6 @@
 
         setInterval(changeZikr, 3500);
 
-        // ===============================================
-        // Global Variables & Auth
-        // ===============================================
         let isOwner = false;
         let allProjects = [];
 
@@ -427,9 +476,6 @@
             }
         });
 
-        // ===============================================
-        // کۆدی تایبەت بە کارپێکردنی دوگمەی دۆخی تاریک
-        // ===============================================
         function updateDarkIcons(iconClass) {
             document.querySelectorAll('.dark-mode-icon').forEach(icon => {
                 icon.classList.remove('fa-moon', 'fa-sun');
@@ -456,9 +502,6 @@
             updateDarkIcons('fa-sun');
         }
 
-        // ============================================================
-        // Load Forms
-        // ============================================================
         db.collection("forms").orderBy("order", "asc").onSnapshot(async (snapshot) => {
             const container = document.getElementById('formsContainer');
 
@@ -662,7 +705,6 @@
                     e.preventDefault();
                     e.stopPropagation();
                     navMenu.classList.toggle('show');
-                    // کاتێک مینیۆکە دەکرێتەوە ئەم کڵاسەی بۆ زیاد دەبێت بۆ گۆڕینی قەبارەی ڕووناکییەکە
                     navbar.classList.toggle('menu-open');
                 });
 

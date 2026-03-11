@@ -36,7 +36,7 @@
            ========================================= */
         @media (max-width: 991px) {
             #page-content-wrapper {
-                padding-top: 90px !important;
+                padding-top: 100px !important; /* بۆشایی زیاتر بۆ خوارەوەی مینیۆکە */
             }
 
             /* ئەنیمەیشنی سوڕانەوەی ڕووناکییەکە */
@@ -45,14 +45,19 @@
                 100% { transform: rotate(360deg); }
             }
 
-            /* باکسی دەرەوەی مینیۆکە */
+            /* باکسی دەرەوەی مینیۆکە (جێگیرکراوە) */
             .modern-navbar {
                 background: transparent !important;
                 border: none !important;
                 box-shadow: none !important;
-                padding: 2px; /* ئەستووری هێڵە ڕووناکییەکە */
+                padding: 2px; 
                 border-radius: 52px;
-                position: relative;
+                position: fixed; /* ئەمە وا دەکات لەگەڵ سکڕۆڵ جێگیر بێت */
+                top: 15px; /* کەمێک بۆشایی لە سەرەوە */
+                left: 0;
+                right: 0;
+                margin-left: auto;
+                margin-right: auto;
                 z-index: 1050;
                 overflow: hidden; 
                 transition: border-radius 0.3s ease;
@@ -71,10 +76,10 @@
                 background: conic-gradient(
                     transparent 0%, 
                     transparent 40%, 
-                    #ffffff 50%, /* ڕووناکی یەکەم */
+                    #ffffff 50%, 
                     transparent 60%, 
                     transparent 90%, 
-                    #ffffff 100% /* ڕووناکی دووەم */
+                    #ffffff 100% 
                 );
                 animation: spinLight 3s linear infinite;
                 z-index: -1;
@@ -120,7 +125,7 @@
                 width: 100%;
             }
 
-            /* ڕێکخستنی دوگمەکانی مینیۆی مۆبایل بۆ ئەوەی یەک قەبارە بن */
+            /* ڕێکخستنی دوگمەکانی مینیۆی مۆبایل */
             #navbarNav .navbar-nav {
                 width: 100%;
                 padding: 0 5px;
@@ -228,12 +233,41 @@
             color: #38bdf8;
             border-color: #38bdf8;
         }
+
+        /* =========================================
+           گۆڕینی ڕەنگی ڕووناکی مینیۆکە
+           ========================================= */
+        @media (max-width: 991px) {
+            /* ڕەنگی شینی لۆگۆکە بۆ دۆخی ئاسایی (ڕووناک) */
+            .modern-navbar::before {
+                background: conic-gradient(
+                    transparent 0%, 
+                    transparent 40%, 
+                    #03b6f7 50%, /* ڕەنگی لۆگۆ */
+                    transparent 60%, 
+                    transparent 90%, 
+                    #03b6f7 100% /* ڕەنگی لۆگۆ */
+                ) !important;
+            }
+
+            /* ڕەنگی سپی بۆ دۆخی تاریک (بۆ ئەوەی زەق بێت) */
+            body.dark-mode .modern-navbar::before {
+                background: conic-gradient(
+                    transparent 0%, 
+                    transparent 40%, 
+                    #ffffff 50%, /* ڕەنگی سپی */
+                    transparent 60%, 
+                    transparent 90%, 
+                    #ffffff 100% /* ڕەنگی سپی */
+                ) !important;
+            }
+        }
     </style>
 </head>
 
 <body>
 
-    <nav class="navbar modern-navbar fixed-top mx-auto mt-3 d-lg-none" style="max-width: 92%;">
+    <nav class="navbar modern-navbar mx-auto d-lg-none" style="max-width: 92%;">
         <div class="navbar-inner-bg">
             <a class="navbar-brand d-flex align-items-center m-0" href="index.html">
                 <img src="logo.jpg" alt="MROVDOSTAN" width="35" height="35" class="rounded-circle me-2"
@@ -322,7 +356,7 @@
             </div>
         </div>
 
-        <div id="page-content-wrapper" class="w-100 p-4 pt-lg-5">
+        <div id="page-content-wrapper" class="w-100 p-4">
 
             <nav class="navbar navbar-expand-lg navbar-light bg-transparent mb-4 border-bottom pb-3 d-none d-lg-flex">
                 <div class="container-fluid px-0 d-flex justify-content-between align-items-center">

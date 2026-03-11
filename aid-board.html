@@ -32,44 +32,102 @@
         }
 
         /* =========================================
-           دیزاینی مینیۆی مۆبایل (Floating Menu) 
+           دیزاینی مینیۆی مۆبایل بە ڕووناکی سوڕاوە (جێگیرکراو)
            ========================================= */
         @media (max-width: 991px) {
             #page-content-wrapper {
-                padding-top: 100px !important;
+                padding-top: 100px !important; /* بۆشایی بۆ خوارەوەی مینیۆکە */
             }
 
+            @keyframes spinLight {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+
+            /* باکسی دەرەوەی مینیۆکە (جێگیرکراوە) */
             .modern-navbar {
-                background: rgba(255, 255, 255, 0.85);
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 2px;
+                border-radius: 52px;
+                position: fixed; /* لە کاتی سکڕۆڵ جێگیر دەبێت */
+                top: 15px;
+                left: 0;
+                right: 0;
+                margin-left: auto;
+                margin-right: auto;
+                z-index: 1050;
+                overflow: hidden;
+                transition: border-radius 0.3s ease;
+            }
+
+            /* دوو ڕووناکییە سپییەکە */
+            .modern-navbar::before {
+                content: "";
+                position: absolute;
+                width: 200%;
+                height: 1500px;
+                top: 50%;
+                left: 50%;
+                margin-left: -100%;
+                margin-top: -750px;
+                background: conic-gradient(
+                    transparent 0%, 
+                    transparent 40%, 
+                    #ffffff 50%, 
+                    transparent 60%, 
+                    transparent 90%, 
+                    #ffffff 100% 
+                );
+                animation: spinLight 3s linear infinite;
+                z-index: -1;
+            }
+
+            /* بەشە سەرەکییەکەی ناوەوەی مینیۆکە */
+            .navbar-inner-bg {
+                background: rgba(255, 255, 255, 0.95);
                 backdrop-filter: blur(15px);
                 -webkit-backdrop-filter: blur(15px);
+                border-radius: 50px;
+                width: 100%;
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: space-between;
+                padding: 8px 15px;
+                transition: border-radius 0.3s ease;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             }
 
-            body.dark-mode .modern-navbar {
-                background: rgba(30, 41, 59, 0.85);
+            body.dark-mode .navbar-inner-bg {
+                background: rgba(30, 41, 59, 0.95);
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            }
+
+            /* کاتێک مینیۆکە دەکرێتەوە خڕییەکەی دەگۆڕێت */
+            .modern-navbar.menu-open {
+                border-radius: 22px;
+            }
+            
+            .modern-navbar.menu-open .navbar-inner-bg {
+                border-radius: 20px;
             }
 
             #navbarNav {
-                background: #ffffff;
-                border-radius: 15px;
-                padding: 15px;
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
+                background: transparent;
+                border-radius: 0;
+                padding: 0;
+                box-shadow: none;
+                position: static;
                 margin-top: 10px;
+                width: 100%;
             }
 
-            body.dark-mode #navbarNav {
-                background: #1e293b;
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-            }
-
-            /* ڕێکخستنی دوگمەکانی مینیۆی مۆبایل بۆ ئەوەی هەموویان یەک قەبارە بن */
+            /* ڕێکخستنی دوگمەکانی مینیۆی مۆبایل */
             #navbarNav .navbar-nav {
                 width: 100%;
-                padding: 0 10px;
+                padding: 0 5px;
             }
 
             #navbarNav .nav-item {
@@ -177,15 +235,43 @@
         body.dark-mode .bg-light {
             background-color: #0f172a !important;
         }
+
+        /* =========================================
+           گۆڕینی ڕەنگی ڕووناکی مینیۆکە
+           ========================================= */
+        @media (max-width: 991px) {
+            /* ڕەنگی شینی لۆگۆکە بۆ دۆخی ئاسایی (ڕووناک) */
+            .modern-navbar::before {
+                background: conic-gradient(
+                    transparent 0%, 
+                    transparent 40%, 
+                    #03b6f7 50%, /* ڕەنگی لۆگۆ */
+                    transparent 60%, 
+                    transparent 90%, 
+                    #03b6f7 100% /* ڕەنگی لۆگۆ */
+                ) !important;
+            }
+
+            /* ڕەنگی سپی بۆ دۆخی تاریک (بۆ ئەوەی زەق بێت) */
+            body.dark-mode .modern-navbar::before {
+                background: conic-gradient(
+                    transparent 0%, 
+                    transparent 40%, 
+                    #ffffff 50%, /* ڕەنگی سپی */
+                    transparent 60%, 
+                    transparent 90%, 
+                    #ffffff 100% /* ڕەنگی سپی */
+                ) !important;
+            }
+        }
     </style>
 </head>
 
 <body>
 
-    <nav class="navbar modern-navbar fixed-top mx-auto mt-3 shadow-sm d-lg-none"
-        style="max-width: 92%; border-radius: 50px; z-index: 1050; border: 1px solid rgba(0,0,0,0.05);">
-        <div class="container-fluid px-3">
-            <a class="navbar-brand d-flex align-items-center" href="index.html">
+    <nav class="navbar modern-navbar mx-auto d-lg-none" style="max-width: 92%;">
+        <div class="navbar-inner-bg">
+            <a class="navbar-brand d-flex align-items-center m-0" href="index.html">
                 <img src="logo.jpg" alt="MROVDOSTAN" width="35" height="35" class="rounded-circle me-2"
                     style="object-fit: contain;">
                 <span class="fw-bold text-primary fs-6">MROVDOSTAN</span>
@@ -354,7 +440,6 @@
     <script src="js/aid-board.js"></script>
 
     <script>
-        // فەنکشنی پیشاندانی نامەی (بەم زووانە) بۆ دوگمەی پڕۆفایل
         function showComingSoonAlert(e) {
             e.preventDefault(); 
             Swal.fire({
@@ -366,7 +451,6 @@
             });
         }
 
-        // کۆدی تایبەت بە کارپێکردنی دوگمەی دۆخی تاریک
         function updateDarkIcons(iconClass) {
             document.querySelectorAll('.dark-mode-icon').forEach(icon => {
                 icon.classList.remove('fa-moon', 'fa-sun');
@@ -389,7 +473,6 @@
             });
         });
 
-        // گونجاندنی ئایکۆن لەکاتی کردنەوەی پەڕەکە
         if (localStorage.getItem('theme') === 'dark' || document.body.classList.contains('dark-mode')) {
             updateDarkIcons('fa-sun');
         }
@@ -397,17 +480,20 @@
         document.addEventListener('DOMContentLoaded', () => {
             const toggleBtn = document.getElementById('mobileMenuToggler');
             const navMenu = document.getElementById('navbarNav');
+            const navbar = document.querySelector('.modern-navbar');
 
-            if (toggleBtn && navMenu) {
+            if (toggleBtn && navMenu && navbar) {
                 toggleBtn.addEventListener('click', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     navMenu.classList.toggle('show');
+                    navbar.classList.toggle('menu-open');
                 });
 
                 document.addEventListener('click', (e) => {
                     if (navMenu.classList.contains('show') && !navMenu.contains(e.target) && !toggleBtn.contains(e.target)) {
                         navMenu.classList.remove('show');
+                        navbar.classList.remove('menu-open');
                     }
                 });
             }
