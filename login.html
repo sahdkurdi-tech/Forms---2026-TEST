@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>سیستەمی فۆڕمەکان - چوونەژوورەوە</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -29,19 +29,25 @@
             --glass-border: rgba(255, 255, 255, 0.2);
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'NRT', sans-serif;
             margin: 0;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            overflow-x: hidden;
             /* باکگراوندی جوڵاو */
             background: linear-gradient(-45deg, #1e3c72, #2a5298, #0575e6, #021b79);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             position: relative;
+            padding: 20px;
+            /* بۆ ئەوەی لە شاشەی بچووکدا نەلکێت بە لێوارەکانەوە */
         }
 
         @keyframes gradientBG {
@@ -58,7 +64,7 @@
             }
         }
 
-        /* شێوە بازنەییەکانی پشتەوە بۆ جوانی زیاتر */
+        /* شێوە بازنەییەکانی پشتەوە */
         .blob {
             position: absolute;
             border-radius: 50%;
@@ -72,7 +78,7 @@
             height: 300px;
             background: rgba(79, 172, 254, 0.4);
             top: 10%;
-            left: 15%;
+            left: 10%;
         }
 
         .blob-2 {
@@ -80,7 +86,7 @@
             height: 400px;
             background: rgba(0, 242, 254, 0.3);
             bottom: -5%;
-            right: 10%;
+            right: 5%;
             animation-delay: -5s;
         }
 
@@ -94,12 +100,12 @@
             }
         }
 
-        /* --- بۆکسی چوونە ژوورەوە (Glassmorphism) --- */
+        /* --- بۆکسی چوونە ژوورەوە --- */
         .glass-card {
             position: relative;
             width: 100%;
             max-width: 420px;
-            padding: 50px 40px;
+            padding: 40px 40px;
             background: var(--glass-bg);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
@@ -125,13 +131,13 @@
 
         /* --- لۆگۆ --- */
         .logo-container {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             animation: floatLogo 4s ease-in-out infinite alternate;
         }
 
         .logo-img {
-            width: 110px;
-            height: 110px;
+            width: 100px;
+            height: 100px;
             object-fit: contain;
             border-radius: 50%;
             border: 3px solid rgba(255, 255, 255, 0.3);
@@ -155,19 +161,19 @@
             font-weight: bold;
             letter-spacing: 1px;
             margin-bottom: 8px;
-            font-size: 1.8rem;
+            font-size: 1.6rem;
         }
 
         p.subtitle {
             color: rgba(255, 255, 255, 0.7);
-            font-size: 0.95rem;
-            margin-bottom: 35px;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
         }
 
         /* --- ئینپوتەکان --- */
         .input-group-custom {
             position: relative;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .custom-input {
@@ -177,7 +183,7 @@
             border-radius: 12px;
             padding: 14px 45px 14px 45px;
             color: var(--text-light);
-            font-size: 1.05rem;
+            font-size: 1rem;
             outline: none;
             direction: ltr;
             text-align: left;
@@ -221,6 +227,11 @@
             transition: 0.3s;
             z-index: 5;
             padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            width: 30px;
         }
 
         .eye-btn:hover {
@@ -252,7 +263,6 @@
             transform: translateY(1px);
         }
 
-        /* --- پەیامی هەڵە --- */
         #errorMsg {
             margin-top: 20px;
             background: rgba(255, 75, 75, 0.15);
@@ -264,6 +274,38 @@
             border: 1px solid rgba(255, 75, 75, 0.3);
             text-align: center;
             backdrop-filter: blur(5px);
+        }
+
+        /* گونجاندنی تایبەت بۆ شاشەی مۆبایلەکان */
+        @media (max-width: 480px) {
+            .glass-card {
+                padding: 30px 20px;
+                border-radius: 20px;
+            }
+
+            .logo-img {
+                width: 85px;
+                height: 85px;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            p.subtitle {
+                font-size: 0.85rem;
+                margin-bottom: 25px;
+            }
+
+            .custom-input {
+                font-size: 0.95rem;
+                padding: 12px 40px 12px 40px;
+            }
+
+            .btn-login {
+                font-size: 1rem;
+                padding: 12px;
+            }
         }
     </style>
 </head>
@@ -312,7 +354,6 @@
     <script src="js/firebase-config.js"></script>
 
     <script>
-        // نیشاندان و شاردنەوەی وشەی نهێنی
         function togglePassword() {
             const passInput = document.getElementById('password');
             const icon = document.querySelector('.eye-icon-inner');
@@ -327,7 +368,6 @@
             }
         }
 
-        // لۆجیکی چوونەژوورەوە بێ گۆڕانکاری ماوەتەوە
         document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
 
@@ -348,7 +388,8 @@
                         const userDoc = await db.collection("users").doc(cleanEmail).get();
 
                         if (userDoc.exists) {
-                            btn.style.background = '#28a745'; // گۆڕینی ڕەنگ بۆ سەوز لەکاتی سەرکەوتن
+                            btn.style.background = '#28a745';
+                            btn.style.boxShadow = '0 4px 15px rgba(40, 167, 69, 0.4)';
                             btn.innerHTML = '<i class="fa-solid fa-check me-2"></i> سەرکەوتووبوو';
                             setTimeout(() => window.location.href = "index.html", 800);
                         } else {
