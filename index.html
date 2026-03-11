@@ -64,7 +64,7 @@
 
         /* شێوەی جوانکاری لە پشتەوەی زیکرەکان */
         .zikr-box::before {
-            content: '\f66b'; /* ئایکۆنی قورئان یان ئیسلامی */
+            content: '\f66b'; 
             font-family: "Font Awesome 6 Free";
             font-weight: 900;
             position: absolute;
@@ -136,6 +136,47 @@
             .zikr-text {
                 font-size: 1.4rem;
             }
+            
+            #navbarNav .navbar-nav {
+                width: 100%;
+                padding: 0 10px;
+            }
+
+            #navbarNav .nav-item {
+                width: 100%;
+                margin-bottom: 8px; 
+            }
+            
+            #navbarNav .nav-link {
+                width: 100%; 
+                text-align: center;
+                padding: 12px 15px;
+                background-color: #f8fafc; 
+                border-radius: 12px; 
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+                border: 1px solid transparent;
+            }
+
+            #navbarNav .nav-link:hover {
+                background-color: #f1f5f9;
+            }
+
+            #navbarNav .nav-link.active {
+                background-color: rgba(3, 182, 247, 0.1);
+                border-color: rgba(3, 182, 247, 0.2);
+            }
+
+            body.dark-mode #navbarNav .nav-link {
+                background-color: #334155;
+            }
+
+            body.dark-mode #navbarNav .nav-link.active {
+                background-color: rgba(56, 189, 248, 0.15);
+                border-color: rgba(56, 189, 248, 0.3);
+            }
         }
     </style>
 </head>
@@ -156,26 +197,39 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
-                <div class="d-flex justify-content-center p-3 mb-2 border-bottom">
-                    <img src="https://ui-avatars.com/api/?name=User&background=6366f1&color=fff" class="rounded-circle shadow-sm" width="55" height="55">
-                </div>
-
-                <ul class="navbar-nav align-items-center gap-2 mt-2">
-                    <li class="nav-item w-100"><a class="nav-link fw-bold active text-primary text-center"
-                            href="index.html"><i class="fa-solid fa-house me-1"></i> سەرەکی</a></li>
-                    <li class="nav-item w-100"><a class="nav-link fw-bold text-center" href="aid-board.html"><i
-                                class="fa-solid fa-hand-holding-heart me-1"></i> کەیسی نوێ</a></li>
-                    <li class="nav-item w-100 d-none" id="navSettingsMobile"><a class="nav-link fw-bold text-center"
-                            href="settings.html"><i class="fa-solid fa-gear me-1"></i> سێتینگ</a></li>
-                            
-                    <li class="nav-item w-100 border-top pt-2 mt-1">
-                        <a class="nav-link fw-bold text-secondary text-center dark-mode-toggle" href="#">
-                            <i class="fa-solid fa-moon me-1 dark-mode-icon"></i> دۆخی تاریک
+                <ul class="navbar-nav align-items-center w-100 mt-3">
+                    <li class="nav-item">
+                        <a class="nav-link fw-bold text-info" href="#" onclick="showComingSoonAlert(event)">
+                            <i class="fa-regular fa-circle-user me-2"></i> پــــــڕۆفایــــــل
                         </a>
                     </li>
 
-                    <li class="nav-item w-100 border-top pt-2 mt-1"><a class="nav-link fw-bold text-danger text-center"
-                            href="#" onclick="logout()"><i class="fa-solid fa-right-from-bracket me-1"></i> دەرچوون</a>
+                    <li class="nav-item border-top pt-2 mt-1 w-100">
+                        <a class="nav-link fw-bold active text-primary" href="index.html">
+                            <i class="fa-solid fa-house me-2"></i> ســــــەرەکــــــی
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-bold" href="aid-board.html">
+                            <i class="fa-solid fa-hand-holding-heart me-2"></i> کەیســــی نــــوێ
+                        </a>
+                    </li>
+                    <li class="nav-item d-none" id="navSettingsMobile">
+                        <a class="nav-link fw-bold" href="settings.html">
+                            <i class="fa-solid fa-gear me-2"></i> ســـــــێتینـــــــگ
+                        </a>
+                    </li>
+                            
+                    <li class="nav-item border-top pt-2 mt-1 w-100">
+                        <a class="nav-link fw-bold text-secondary dark-mode-toggle" href="#">
+                            <i class="fa-solid fa-moon me-2 dark-mode-icon"></i> دۆخــــی تاریــــک
+                        </a>
+                    </li>
+
+                    <li class="nav-item border-top pt-2 mt-1 w-100">
+                        <a class="nav-link fw-bold text-danger" href="#" onclick="logout()">
+                            <i class="fa-solid fa-right-from-bracket me-2"></i> دەرچــــــــــــوون
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -193,7 +247,11 @@
             </div>
 
             <div class="d-flex flex-column gap-2">
-                <a href="index.html" class="mobile-nav-item active">
+                <a href="#" class="mobile-nav-item text-info mb-2" onclick="showComingSoonAlert(event)">
+                    <i class="fa-regular fa-circle-user"></i> <span>پڕۆفایل</span>
+                </a>
+
+                <a href="index.html" class="mobile-nav-item active border-top pt-3">
                     <i class="fa-solid fa-house"></i> <span>سەرەکی</span>
                 </a>
 
@@ -209,13 +267,9 @@
                     <i class="fa-solid fa-moon dark-mode-icon"></i> <span>دۆخی تاریک</span>
                 </a>
 
-                <a href="#" onclick="logout()" class="mobile-nav-item text-danger mt-2">
+                <a href="#" onclick="logout()" class="mobile-nav-item text-danger mt-2 border-top pt-3">
                     <i class="fa-solid fa-right-from-bracket"></i> <span>دەرچوون</span>
                 </a>
-            </div>
-
-            <div class="mt-auto p-3 border-top d-flex justify-content-center" style="border-color: rgba(0,0,0,0.05) !important;">
-                <img src="https://ui-avatars.com/api/?name=User&background=6366f1&color=fff" class="rounded-circle shadow-sm" width="45" height="45">
             </div>
         </div>
 
@@ -249,6 +303,18 @@
     <script src="js/dark-mode.js"></script>
 
     <script>
+        // فەنکشنی پیشاندانی نامەی (بەم زووانە) بۆ دوگمەی پڕۆفایل
+        function showComingSoonAlert(e) {
+            e.preventDefault(); // ڕێگری کردن لە گۆڕینی پەڕەکە
+            Swal.fire({
+                icon: 'info',
+                title: 'بەم زووانە...',
+                text: 'بەشی پڕۆفایل لە نوێکردنەوەکانی داهاتوودا چالاک دەکرێت.',
+                confirmButtonText: 'باشە',
+                confirmButtonColor: '#38bdf8'
+            });
+        }
+
         // ===============================================
         // سیستەمی گۆڕینی زیکرەکان
         // ===============================================
@@ -267,22 +333,18 @@
         const zikrElement = document.getElementById('zikrDisplay');
 
         function changeZikr() {
-            // یەکەمجار ئەنیمەیشنی دیارنەمان کارپێدەکەین
             zikrElement.classList.remove('zikr-fade-in');
             zikrElement.classList.add('zikr-fade-out');
 
             setTimeout(() => {
-                // دوای نیو چرکە زیکرەکە دەگۆڕین
                 currentZikrIndex = (currentZikrIndex + 1) % zikrs.length;
                 zikrElement.innerText = zikrs[currentZikrIndex];
                 
-                // پاشان ئەنیمەیشنی دەرکەوتن کارپێدەکەین
                 zikrElement.classList.remove('zikr-fade-out');
                 zikrElement.classList.add('zikr-fade-in');
-            }, 800); // ئەمە کاتی دیارنەمانەکەیە
+            }, 800); 
         }
 
-        // گۆڕینی زیکرەکان هەموو 6 چرکە جارێک
         setInterval(changeZikr, 3500);
 
         // ===============================================

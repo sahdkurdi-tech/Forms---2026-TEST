@@ -66,6 +66,48 @@
                 background: #1e293b;
                 box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
             }
+
+            /* ڕێکخستنی دوگمەکانی مینیۆی مۆبایل بۆ ئەوەی هەموویان یەک قەبارە بن */
+            #navbarNav .navbar-nav {
+                width: 100%;
+                padding: 0 10px;
+            }
+
+            #navbarNav .nav-item {
+                width: 100%;
+                margin-bottom: 8px; 
+            }
+            
+            #navbarNav .nav-link {
+                width: 100%; 
+                text-align: center;
+                padding: 12px 15px;
+                background-color: #f8fafc; 
+                border-radius: 12px; 
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+                border: 1px solid transparent;
+            }
+
+            #navbarNav .nav-link:hover {
+                background-color: #f1f5f9;
+            }
+
+            #navbarNav .nav-link.active {
+                background-color: rgba(3, 182, 247, 0.1);
+                border-color: rgba(3, 182, 247, 0.2);
+            }
+
+            body.dark-mode #navbarNav .nav-link {
+                background-color: #334155;
+            }
+
+            body.dark-mode #navbarNav .nav-link.active {
+                background-color: rgba(56, 189, 248, 0.15);
+                border-color: rgba(56, 189, 248, 0.3);
+            }
         }
 
         /* ستایلی دروستکەری فۆڕم */
@@ -186,15 +228,39 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav align-items-center gap-2">
-                    <li class="nav-item w-100"><a class="nav-link fw-bold text-center" href="index.html"><i
-                                class="fa-solid fa-house me-1"></i> سەرەکی</a></li>
-                    <li class="nav-item w-100"><a class="nav-link fw-bold text-center" href="aid-board.html"><i
-                                class="fa-solid fa-hand-holding-heart me-1"></i>کەیسی نوێ</a></li>
-                    <li class="nav-item w-100"><a class="nav-link fw-bold active text-primary text-center"
-                            href="settings.html"><i class="fa-solid fa-gear me-1"></i> سێتینگ</a></li>
-                    <li class="nav-item w-100 border-top pt-2 mt-1"><a class="nav-link fw-bold text-danger text-center"
-                            href="#" onclick="logout()"><i class="fa-solid fa-right-from-bracket me-1"></i> دەرچوون</a>
+                <ul class="navbar-nav align-items-center w-100 pt-3">
+                    <li class="nav-item">
+                        <a class="nav-link fw-bold text-info" href="#" onclick="showComingSoonAlert(event)">
+                            <i class="fa-regular fa-circle-user me-2"></i> پــــــڕۆفایــــــل
+                        </a>
+                    </li>
+
+                    <li class="nav-item border-top pt-2 mt-1 w-100">
+                        <a class="nav-link fw-bold" href="index.html">
+                            <i class="fa-solid fa-house me-2"></i> ســــــەرەکــــــی
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-bold" href="aid-board.html">
+                            <i class="fa-solid fa-hand-holding-heart me-2"></i> کەیســــی نــــوێ
+                        </a>
+                    </li>
+                    <li class="nav-item" id="navSettingsMobileLi">
+                        <a class="nav-link fw-bold active text-primary" href="settings.html">
+                            <i class="fa-solid fa-gear me-2"></i> ســـــــێتینـــــــگ
+                        </a>
+                    </li>
+                            
+                    <li class="nav-item border-top pt-2 mt-1 w-100">
+                        <a class="nav-link fw-bold text-secondary dark-mode-toggle" href="#">
+                            <i class="fa-solid fa-moon me-2 dark-mode-icon"></i> دۆخــــی تاریــــک
+                        </a>
+                    </li>
+
+                    <li class="nav-item border-top pt-2 mt-1 w-100">
+                        <a class="nav-link fw-bold text-danger" href="#" onclick="logout()">
+                            <i class="fa-solid fa-right-from-bracket me-2"></i> دەرچــــــــــــوون
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -212,16 +278,27 @@
             </div>
 
             <div class="d-flex flex-column gap-2">
-                <a href="index.html" class="mobile-nav-item">
+                <a href="#" class="mobile-nav-item text-info mb-2" onclick="showComingSoonAlert(event)">
+                    <i class="fa-regular fa-circle-user"></i> <span>پڕۆفایل</span>
+                </a>
+
+                <a href="index.html" class="mobile-nav-item border-top pt-3">
                     <i class="fa-solid fa-house"></i> <span>سەرەکی</span>
                 </a>
+
                 <a href="aid-board.html" class="mobile-nav-item">
                     <i class="fa-solid fa-hand-holding-heart"></i> <span>کەیسی نوێ</span>
                 </a>
-                <a href="settings.html" class="mobile-nav-item active">
+
+                <a href="settings.html" class="mobile-nav-item active" id="navSettingsSidebar">
                     <i class="fa-solid fa-gear"></i> <span>سێتینگ</span>
                 </a>
-                <a href="#" onclick="logout()" class="mobile-nav-item text-danger mt-5">
+
+                <a href="#" class="mobile-nav-item text-secondary mt-5 dark-mode-toggle">
+                    <i class="fa-solid fa-moon dark-mode-icon"></i> <span>دۆخی تاریک</span>
+                </a>
+
+                <a href="#" onclick="logout()" class="mobile-nav-item text-danger mt-2 border-top pt-3">
                     <i class="fa-solid fa-right-from-bracket"></i> <span>دەرچوون</span>
                 </a>
             </div>
@@ -337,6 +414,46 @@
     <script src="js/aid-settings.js"></script>
 
     <script>
+        // فەنکشنی پیشاندانی نامەی (بەم زووانە) بۆ دوگمەی پڕۆفایل
+        function showComingSoonAlert(e) {
+            e.preventDefault(); 
+            Swal.fire({
+                icon: 'info',
+                title: 'بەم زووانە...',
+                text: 'بەشی پڕۆفایل لە نوێکردنەوەکانی داهاتوودا چالاک دەکرێت.',
+                confirmButtonText: 'باشە',
+                confirmButtonColor: '#38bdf8'
+            });
+        }
+
+        // کۆدی تایبەت بە کارپێکردنی دوگمەی دۆخی تاریک
+        function updateDarkIcons(iconClass) {
+            document.querySelectorAll('.dark-mode-icon').forEach(icon => {
+                icon.classList.remove('fa-moon', 'fa-sun');
+                icon.classList.add(iconClass);
+            });
+        }
+
+        document.querySelectorAll('.dark-mode-toggle').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (document.body.classList.contains('dark-mode')) {
+                    document.body.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                    updateDarkIcons('fa-moon');
+                } else {
+                    document.body.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                    updateDarkIcons('fa-sun');
+                }
+            });
+        });
+
+        // گونجاندنی ئایکۆن لەکاتی کردنەوەی پەڕەکە
+        if (localStorage.getItem('theme') === 'dark' || document.body.classList.contains('dark-mode')) {
+            updateDarkIcons('fa-sun');
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const toggleBtn = document.getElementById('mobileMenuToggler');
             const navMenu = document.getElementById('navbarNav');
