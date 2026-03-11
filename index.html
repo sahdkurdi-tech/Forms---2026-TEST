@@ -118,8 +118,7 @@
                 <div class="d-flex align-items-center gap-3 p-3 mb-2 border-bottom">
                     <img src="https://ui-avatars.com/api/?name=Admin&background=6366f1&color=fff" class="rounded-circle" width="45" height="45">
                     <div>
-                        <span class="d-block fw-bold text-dark" id="userEmailDisplayMobile" style="font-size: 0.95rem;">...</span>
-                        <small class="text-muted">بەڕێوەبەر</small>
+                        <span class="d-block fw-bold text-dark" id="userEmailDisplayMobile" style="font-size: 1.1rem;">...</span>
                     </div>
                 </div>
 
@@ -181,8 +180,7 @@
                 <div class="d-flex align-items-center gap-3">
                     <img src="https://ui-avatars.com/api/?name=Admin&background=6366f1&color=fff" class="rounded-circle shadow-sm" width="40" height="40">
                     <div style="overflow: hidden;">
-                        <span class="d-block fw-bold text-truncate text-dark" style="font-size: 0.85rem;" id="userEmailDisplayDesktop">...</span>
-                        <small class="text-muted" style="font-size: 0.75rem;">پڕۆفایل</small>
+                        <span class="d-block fw-bold text-truncate text-dark" style="font-size: 0.95rem;" id="userEmailDisplayDesktop">...</span>
                     </div>
                 </div>
             </div>
@@ -341,13 +339,23 @@
                 const viewLink = `${window.location.origin}/view.html?id=${id}`;
                 const delay = index * 0.05;
 
-                let createdDate = 'نوێ';
+                // چارەسەری کێشەی بەروار (Invalid Date)
+                let createdDate = '';
                 if (data.createdAt) {
                     if (typeof data.createdAt.toDate === 'function') {
                         createdDate = data.createdAt.toDate().toLocaleDateString('ku-IQ');
                     } else {
-                        createdDate = new Date(data.createdAt).toLocaleDateString('ku-IQ');
+                        let d = new Date(data.createdAt);
+                        if (!isNaN(d.getTime())) {
+                            createdDate = d.toLocaleDateString('ku-IQ');
+                        }
                     }
+                }
+
+                // ئەگەر بەروارەکە دروست بوو، ئەوا نیشانی بدە. ئەگەرنا بیشارەوە.
+                let dateHtml = '';
+                if (createdDate && createdDate !== 'Invalid Date') {
+                    dateHtml = `<div class="elegant-date"><i class="fa-regular fa-clock"></i> دروستکراوە لە: ${createdDate}</div>`;
                 }
 
                 const projectColor = data.color || '#38bdf8';
@@ -388,12 +396,10 @@
                     
                     <div class="elegant-body">
                         <h3 class="elegant-title text-truncate" title="${data.title || 'بێ ناو'}">${data.title || 'بێ ناو'}</h3>
-                        <div class="elegant-date">
-                            <i class="fa-regular fa-clock"></i> دروستکراوە لە: ${createdDate}
-                        </div>
+                        ${dateHtml}
                     </div>
 
-                    <div class="d-flex gap-2">
+                    <div class="d-flex gap-2 mt-3">
                         <a href="${viewLink}" target="_blank" class="elegant-btn-main fill-btn" style="background-color: var(--card-color); border-color: var(--card-color);">
                             <i class="fa-solid fa-pen-nib"></i> پڕکردنەوە
                         </a>
