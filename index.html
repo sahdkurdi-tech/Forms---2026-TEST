@@ -303,59 +303,78 @@
                 const viewLink = `${window.location.origin}/view.html?id=${id}`;
                 const delay = index * 0.05;
 
-                let statusBadge = isActive
-                    ? `<span class="badge bg-success-subtle text-success rounded-pill">چالاکە</span>`
-                    : `<span class="badge bg-danger-subtle text-danger rounded-pill">ڕاگیراوە</span>`;
-
-                let ownerActions = '';
-                let designButton = '';
-
-                if (isOwner) {
-                    designButton = `
-                    <a href="builder.html?id=${id}" class="btn-design-outline" title="دەستکاری دیزاین">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    </a>`;
-
-                    ownerActions = `
-                    <button onclick="toggleProjectStatus('${id}', ${isActive})" class="util-btn" title="${isActive ? 'ڕاگرتن' : 'چالاککردن'}">
-                        <i class="fa-solid ${isActive ? 'fa-pause' : 'fa-play'}"></i>
-                    </button>
-                    <button onclick="deleteForm('${id}')" class="util-btn delete" title="سڕینەوە">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                `;
+                // --- چارەسەری کێشەی بەروار ---
+                let createdDate = 'نوێ';
+                if (data.createdAt) {
+                    if (typeof data.createdAt.toDate === 'function') {
+                        createdDate = data.createdAt.toDate().toLocaleDateString('ku-IQ');
+                    } else {
+                        createdDate = new Date(data.createdAt).toLocaleDateString('ku-IQ');
+                    }
                 }
 
+                // --- هێنانی ڕەنگی پڕۆژەکە ---
+                // ئەگەر پڕۆژەکە کۆن بوو و ڕەنگی نەبوو، ڕەنگی شین (#38bdf8) وەردەگرێت
+                const projectColor = data.color || '#38bdf8';
+
+                // --- دیزاینی دۆخی پڕۆژە ---
+                let statusBadge = isActive
+                    ? `<span class="elegant-status active"><i class="fa-solid fa-check"></i> چالاکە</span>`
+                    : `<span class="elegant-status paused"><i class="fa-solid fa-pause"></i> ڕاگیراوە</span>`;
+
+                // --- دەسەڵاتەکانی خاوەن پڕۆژە ---
+                let ownerActions = '';
+                if (isOwner) {
+                    ownerActions = `
+                    <div class="elegant-actions-secondary mt-3 pt-3">
+                        <a href="builder.html?id=${id}" class="elegant-btn-icon" title="دیزاینی فۆڕم">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </a>
+                        <button onclick="copyLink('${viewLink}')" class="elegant-btn-icon" title="کۆپی لینک">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                        <button onclick="toggleProjectStatus('${id}', ${isActive})" class="elegant-btn-icon" title="${isActive ? 'ڕاگرتن' : 'چالاککردن'}">
+                            <i class="fa-solid ${isActive ? 'fa-pause' : 'fa-play'}"></i>
+                        </button>
+                        <button onclick="deleteForm('${id}')" class="elegant-btn-icon delete ms-auto" title="سڕینەوە">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>`;
+                }
+
+                // --- دروستکردنی کۆدی HTML بۆ کارتەکە ---
                 container.innerHTML += `
             <div class="col-md-6 col-lg-4 mb-4 animate-up" style="animation-delay: ${delay}s">
-                <div class="project-card">
-                    <div class="card-body-custom">
-                        <div class="card-header-row">
-                            <div class="card-title-text text-truncate" style="max-width: 70%;" title="${data.title}">${data.title}</div>
-                            ${statusBadge}
+                <div class="project-card-elegant" style="--card-color: ${projectColor}; border-top: 4px solid var(--card-color);">
+                    
+                    <div class="elegant-header">
+                        <div class="elegant-icon" style="color: var(--card-color);">
+                            <i class="fa-solid fa-folder-closed"></i>
                         </div>
-                        <div class="main-actions-row">
-                            <a href="${viewLink}" target="_blank" class="btn-fill-form">
-                                <i class="fa-solid fa-pen-to-square"></i> پڕکردنەوەی فۆڕم
-                            </a>
-                            ${designButton}
-                        </div>
-                        <div class="utility-row">
-                            <button onclick="copyLink('${viewLink}')" class="util-btn" title="کۆپی لینک">
-                                <i class="fa-regular fa-copy"></i>
-                            </button>
-                            ${ownerActions}
+                        ${statusBadge}
+                    </div>
+                    
+                    <div class="elegant-body">
+                        <h3 class="elegant-title text-truncate" title="${data.title || 'بێ ناو'}">${data.title || 'بێ ناو'}</h3>
+                        <div class="elegant-date">
+                            <i class="fa-regular fa-clock"></i> دروستکراوە لە: ${createdDate}
                         </div>
                     </div>
-                    <a href="data.html?id=${id}" class="btn-view-data-footer">
-                        بینینی داتاکان <i class="fa-solid fa-arrow-left me-2"></i>
-                    </a>
+
+                    <div class="d-flex gap-2">
+                        <a href="${viewLink}" target="_blank" class="elegant-btn-main fill-btn" style="background-color: var(--card-color); border-color: var(--card-color);">
+                            <i class="fa-solid fa-pen-nib"></i> پڕکردنەوە
+                        </a>
+                        <a href="data.html?id=${id}" class="elegant-btn-main data-btn">
+                            <i class="fa-solid fa-database"></i> داتاکان
+                        </a>
+                    </div>
+
+                    ${ownerActions}
                 </div>
             </div>`;
             });
-        }
-
-        // ===============================================
+        }        // ===============================================
         // ١. گۆڕینی دۆخی پڕۆژە
         // ===============================================
         async function toggleProjectStatus(id, currentStatus) {

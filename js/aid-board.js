@@ -1,6 +1,6 @@
 // js/aid-board.js
 
-let formFieldsCache = []; // لێرەدا هەموو خانەکان بە ڕیزکراوی هەڵدەگرین بۆ دەرکردنی داتا
+let formFieldsCache = [];
 let categoriesCache = [];
 let isBoardInitialized = false;
 let currentUserPerms = {};
@@ -11,11 +11,15 @@ firebase.auth().onAuthStateChanged(async (user) => {
         if (userDoc.exists) {
             currentUserPerms = userDoc.data();
 
-            if (currentUserPerms.role !== 'owner') {
-                const settingsLink = document.querySelector('a[href="settings.html"]');
-                if (settingsLink) settingsLink.style.display = 'none';
+            // پیشاندانی دوگمەی سێتینگ تەنها ئەگەر کەسەکە خاوەن (owner) بوو
+            if (currentUserPerms.role === 'owner') {
+                const settingSidebar = document.getElementById('navSettingsSidebar');
+                const settingMobile = document.getElementById('navSettingsMobile');
+                if (settingSidebar) settingSidebar.classList.remove('d-none');
+                if (settingMobile) settingMobile.classList.remove('d-none');
             }
 
+            // شاردنەوەی تابی "دابەشکردن" ئەگەر کەسەکە دەسەڵاتی نەبوو
             if (currentUserPerms.role !== 'owner' && !currentUserPerms.canDistribute) {
                 const distributeTabLi = document.getElementById('distribute-tab');
                 if (distributeTabLi) {
@@ -34,7 +38,6 @@ firebase.auth().onAuthStateChanged(async (user) => {
 });
 
 function initBoard() {
-    // گۆڕانکاری سەرەکی لێرەدایە: خوێندنەوەی درەختی فۆڕمەکە
     db.collection("aid_fields").doc("main_form").onSnapshot(doc => {
         const container = document.getElementById('dynamicFormFields');
         formFieldsCache = [];
@@ -44,8 +47,8 @@ function initBoard() {
             container.innerHTML = '<div class="alert alert-warning">هیچ خانەیەک دروست نەکراوە. لە سێتینگ دروستی بکە.</div>';
         } else {
             const fieldsTree = doc.data().fields;
-            flattenFieldsCache(fieldsTree); // دروستکردنی لیستێکی سادە بۆ ئەرشیف
-            renderFieldsTree(fieldsTree, container); // دروستکردنی دیزاینی فۆڕمەکە بە لقەکانەوە
+            flattenFieldsCache(fieldsTree);
+            renderFieldsTree(fieldsTree, container);
         }
 
         if (!isBoardInitialized) {
@@ -63,7 +66,6 @@ function initBoard() {
     });
 }
 
-// فەنکشنی ڕێکخستنی درەختی خانەکان بۆ ناو کۆگایەک
 function flattenFieldsCache(fields) {
     fields.forEach(f => {
         formFieldsCache.push({ id: f.id, label: f.label, type: f.type });
@@ -73,14 +75,12 @@ function flattenFieldsCache(fields) {
     });
 }
 
-// فەنکشنی دروستکردنی فۆڕم و پیشاندانی لقەکان
 function renderFieldsTree(fields, container, isHidden = false) {
     const wrapper = document.createElement('div');
-    if (isHidden) wrapper.style.display = 'none'; // شاردنەوەی لقەکان لە سەرەتادا
+    if (isHidden) wrapper.style.display = 'none';
 
     fields.forEach(field => {
         const div = document.createElement('div');
-        // جیاکردنەوەی ستایلی پرسیاری سەرەکی لە پرسیاری لاوەکی (لقەکان)
         div.className = isHidden ? 'mb-3 p-3 bg-light rounded border border-info' : 'mb-3';
         if (isHidden && document.body.classList.contains('dark-mode')) div.classList.remove('bg-light');
 
@@ -103,11 +103,9 @@ function renderFieldsTree(fields, container, isHidden = false) {
         div.innerHTML = `<label class="form-label fw-bold ${isHidden ? 'text-info' : ''}">${field.label}</label>${inputHtml}`;
         wrapper.appendChild(div);
 
-        // ئەگەر ئەم خانەیە لقی هەبوو
         if (field.type === 'select_one' && field.children && field.children.length > 0) {
             const childContainer = renderFieldsTree(field.children, div, true);
 
-            // کاتێک وەڵامێک هەڵدەبژێرێت، لقەکە پیشان بدە
             setTimeout(() => {
                 const selectEl = div.querySelector(`select[name="${field.id}"]`);
                 if (selectEl) {
@@ -119,7 +117,7 @@ function renderFieldsTree(fields, container, isHidden = false) {
                             childContainer.style.display = 'none';
                             childContainer.querySelectorAll('input, select, textarea').forEach(el => {
                                 el.required = false;
-                                el.value = ''; // سڕینەوەی وەڵامەکانی پێشوو ئەگەر شاردرایەوە
+                                el.value = '';
                             });
                         }
                     });
@@ -132,15 +130,13 @@ function renderFieldsTree(fields, container, isHidden = false) {
     return wrapper;
 }
 
-// کاتی ناردنی فۆڕمەکە
 document.getElementById('newCaseForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     let caseData = {};
 
-    // تەنها ئەو خانانە وەردەگرین کە دەردەکەون (لقە شاراوەکان وەرناگیرێن)
     const inputs = e.target.querySelectorAll('input, select, textarea');
     inputs.forEach(input => {
-        if (input.offsetParent !== null && input.name) { // offsetParent !== null واتە خانەکە شاراوە نییە
+        if (input.offsetParent !== null && input.name) {
             caseData[input.getAttribute('data-label')] = input.value;
         }
     });
@@ -156,7 +152,6 @@ document.getElementById('newCaseForm').addEventListener('submit', async (e) => {
         await db.collection("aid_cases").add(caseData);
         e.target.reset();
 
-        // شاردنەوەی هەموو لقەکان دوای ڕیسێت بوون
         e.target.querySelectorAll('.branch-container, .bg-light').forEach(el => {
             if (el.style.display !== '') el.style.display = 'none';
         });
@@ -323,7 +318,7 @@ function loadCategoryCases() {
                                 <i class="fa-solid fa-check-double"></i> سەردانی کراوە
                             </button>
                             <button class="btn btn-sm btn-danger action-btn flex-grow-1" onclick="updateStatus('${doc.id}', 'سەردانی نەکراوان')">
-                                <i class="fa-solid fa-xmark"></i> سەردانی نەکراوە
+                                <i class="fa-solid fa-xmark"></i> بەردەست نەبوو
                             </button>
                             <button class="btn btn-sm btn-secondary action-btn flex-grow-1" onclick="updateStatus('${doc.id}', 'پێویستی بە سەردان نەبوو')">
                                 <i class="fa-solid fa-ban"></i> پێویست نەبوو

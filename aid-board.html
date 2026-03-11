@@ -68,7 +68,7 @@
             }
         }
 
-        /* ديزاینی تابەکان */
+        /* دیزاینی تابەکان */
         .nav-tabs .nav-link {
             color: var(--text-muted);
             font-weight: bold;
@@ -79,7 +79,7 @@
             border-bottom: 3px solid var(--primary);
         }
 
-        /* ديزاینی کارتەکان (بۆ ڕووناک) */
+        /* دیزاینی کارتەکان (بۆ ڕووناک) */
         .case-card {
             background: var(--card-bg, #ffffff);
             border-radius: 12px;
@@ -113,7 +113,6 @@
             border-color: #334155 !important;
         }
 
-        /* خانەکانی فۆڕم (Input, Select, Textarea) لە دۆخی تاریک */
         body.dark-mode input.form-control,
         body.dark-mode select.form-select,
         body.dark-mode textarea.form-control {
@@ -134,7 +133,6 @@
             box-shadow: 0 0 0 0.25rem rgba(56, 189, 248, 0.25) !important;
         }
 
-        /* پاشخانی لقەکان (Branch Container) لە دۆخی تاریک */
         body.dark-mode .bg-light {
             background-color: #0f172a !important;
         }
@@ -161,8 +159,10 @@
                                 class="fa-solid fa-house me-1"></i> سەرەکی</a></li>
                     <li class="nav-item w-100"><a class="nav-link fw-bold active text-primary text-center"
                             href="aid-board.html"><i class="fa-solid fa-hand-holding-heart me-1"></i>کەیسی نوێ</a></li>
-                    <li class="nav-item w-100"><a class="nav-link fw-bold text-center" href="settings.html"><i
-                                class="fa-solid fa-gear me-1"></i> سێتینگ</a></li>
+
+                    <li class="nav-item w-100 d-none" id="navSettingsMobile"><a class="nav-link fw-bold text-center"
+                            href="settings.html"><i class="fa-solid fa-gear me-1"></i> سێتینگ</a></li>
+
                     <li class="nav-item w-100 border-top pt-2 mt-1"><a class="nav-link fw-bold text-danger text-center"
                             href="#" onclick="logout()"><i class="fa-solid fa-right-from-bracket me-1"></i> دەرچوون</a>
                     </li>
@@ -185,7 +185,10 @@
                 <a href="index.html" class="mobile-nav-item"><i class="fa-solid fa-house"></i> <span>سەرەکی</span></a>
                 <a href="aid-board.html" class="mobile-nav-item active"><i class="fa-solid fa-hand-holding-heart"></i>
                     <span>کەیسی نوێ</span></a>
-                <a href="settings.html" class="mobile-nav-item"><i class="fa-solid fa-gear"></i> <span>سێتینگ</span></a>
+
+                <a href="settings.html" class="mobile-nav-item d-none" id="navSettingsSidebar"><i
+                        class="fa-solid fa-gear"></i> <span>سێتینگ</span></a>
+
                 <a href="#" onclick="logout()" class="mobile-nav-item text-danger mt-5"><i
                         class="fa-solid fa-right-from-bracket"></i> <span>دەرچوون</span></a>
             </div>

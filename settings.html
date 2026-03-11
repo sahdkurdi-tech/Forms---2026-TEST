@@ -118,7 +118,7 @@
                 </a>
 
                 <a href="aid-board.html" class="mobile-nav-item" id="navAidBoard">
-                    <i class="fa-solid fa-hand-holding-heart"></i> <span>دابەشکردن</span>
+                    <i class="fa-solid fa-hand-holding-heart"></i> <span>کەیسی نوێ</span>
                 </a>
 
                 <a href="settings.html" class="mobile-nav-item active">
@@ -186,6 +186,11 @@
                                     <label class="form-label text-muted small fw-bold">ناوی پڕۆژە / لیست</label>
                                     <input type="text" id="newListName"
                                         class="form-control form-control-lg bg-light border-0">
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label text-muted small fw-bold">ڕەنگی پڕۆژە</label>
+                                    <input type="color" id="newListColor" class="form-control form-control-color w-100"
+                                        value="#38bdf8" title="ڕەنگێک هەڵبژێرە بۆ جیاکردنەوەی پڕۆژەکە">
                                 </div>
                                 <button onclick="createNewList()"
                                     class="btn btn-primary w-100 py-2 rounded-pill fw-bold">دروستکردن</button>
@@ -396,9 +401,11 @@
             }
         });
 
-        // --- Forms Logic (With Auto-Fix & DragDrop) ---
+        // --- Forms Logic (With Auto-Fix & DragDrop & Colors) ---
         async function createNewList() {
             const name = document.getElementById('newListName').value;
+            const color = document.getElementById('newListColor').value; // خوێندنەوەی ڕەنگ
+
             if (!name) return;
             try {
                 const snap = await db.collection("forms").get();
@@ -406,13 +413,33 @@
 
                 await db.collection("forms").add({
                     title: name,
+                    color: color, // خەزنکردنی ڕەنگەکە
                     fields: [],
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     order: newOrder
                 });
+
                 document.getElementById('newListName').value = '';
+                document.getElementById('newListColor').value = '#38bdf8'; // گەڕاندنەوە بۆ باری ئاسایی
                 alert("پڕۆژەکە دروستکرا!");
             } catch (e) { alert("Error"); }
+        }
+
+        // فەنکشنی نوێ بۆ گۆڕینی ڕەنگی پڕۆژە کۆنەکان
+        async function updateProjectColor(id, newColor) {
+            try {
+                await db.collection("forms").doc(id).update({
+                    color: newColor
+                });
+                // پیشاندانی ئاگادارکەرەوەیەکی بچووک کاتێک ڕەنگەکە دەگۆڕێت
+                const Toast = Swal.mixin({
+                    toast: true, position: 'top-end', showConfirmButton: false, timer: 1500
+                });
+                Toast.fire({ icon: 'success', title: 'ڕەنگەکە گۆڕدرا' });
+            } catch (error) {
+                console.error("Error updating color:", error);
+                alert("کێشەیەک لە گۆڕینی ڕەنگەکەدا ڕوویدا");
+            }
         }
 
         db.collection("forms").orderBy("order", "asc").onSnapshot(async (snapshot) => {
@@ -433,12 +460,16 @@
 
             snapshot.forEach((doc) => {
                 const data = doc.data();
+                const projectColor = data.color || '#94a3b8'; // ئەگەر ڕەنگی نەبوو (واتە کۆن بوو)، ڕەنگێکی کاڵ وەردەگرێت
+
                 container.innerHTML += `
                 <div class="list-group-item d-flex justify-content-between align-items-center p-3 border rounded-4 bg-white shadow-sm mb-2 hover-scale" data-id="${doc.id}">
-                    <div class="d-flex align-items-center">
-                        <i class="fa-solid fa-grip-vertical text-muted me-3" style="cursor: grab; font-size: 1.2rem;"></i>
-                        <div class="icon-box bg-soft-primary ms-0 me-3 rounded-circle d-flex justify-content-center align-items-center" style="width:40px; height:40px; font-size:1rem;"><i class="fa-solid fa-list text-primary"></i></div>
-                        <h6 class="mb-0 fw-bold">${data.title}</h6>
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="fa-solid fa-grip-vertical text-muted" style="cursor: grab; font-size: 1.2rem;"></i>
+                        
+                        <input type="color" onchange="updateProjectColor('${doc.id}', this.value)" value="${projectColor}" class="form-control form-control-color p-0 border-0" style="width: 35px; height: 35px; cursor: pointer; border-radius: 8px;" title="کلیک بکە بۆ گۆڕینی ڕەنگ">
+                        
+                        <h6 class="mb-0 fw-bold" style="color: ${projectColor}">${data.title}</h6>
                     </div>
                     <div class="d-flex gap-2">
                         <a href="builder.html?id=${doc.id}" class="btn btn-light btn-sm border rounded-pill px-3"><i class="fa-solid fa-pen-to-square"></i></a>
