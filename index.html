@@ -10,10 +10,11 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dark-mode.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&display=swap" rel="stylesheet">
+
     <link rel="icon" type="image/jpeg" href="logo.jpg">
-
     <link rel="apple-touch-icon" sizes="180x180" href="logo.jpg">
-
     <link rel="icon" type="image/jpeg" sizes="192x192" href="logo.jpg">
     <link rel="icon" type="image/jpeg" sizes="512x512" href="logo.jpg">
     <meta name="theme-color" content="#03b6f7">
@@ -24,29 +25,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <style>
-        /* ستایلی تایبەت بە ئامارەکان */
-        .stat-card-simple {
-            background: white;
-            border-radius: 18px;
-            padding: 20px;
-            border: 1px solid #f1f5f9;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.01);
-            transition: transform 0.2s;
-        }
-
-        body.dark-mode .stat-card-simple {
-            background: var(--card-dark, #1e293b);
-            border-color: var(--border-dark, #334155);
-        }
-
-        .stat-card-simple:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-        }
-
         /* ڕێکخستنی لۆگۆ */
         .sidebar-heading img {
             width: 80px;
@@ -59,6 +37,65 @@
 
         .sidebar-heading img:hover {
             transform: scale(1.05);
+        }
+
+        /* =========================================
+           دیزاینی زیکرەکان (Zikr Box)
+           ========================================= */
+        .zikr-box {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 120px;
+        }
+
+        /* باکگراوندی ڕووناک بۆ دۆخی ئاسایی */
+        body:not(.dark-mode) .zikr-box {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+        }
+
+        /* شێوەی جوانکاری لە پشتەوەی زیکرەکان */
+        .zikr-box::before {
+            content: '\f66b'; /* ئایکۆنی قورئان یان ئیسلامی */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            font-size: 8rem;
+            color: rgba(56, 189, 248, 0.05);
+            right: -20px;
+            bottom: -30px;
+            transform: rotate(-15deg);
+        }
+
+        .zikr-text {
+            font-family: 'Amiri Quran', serif;
+            font-size: 1.8rem;
+            color: #38bdf8;
+            line-height: 1.6;
+            transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        body:not(.dark-mode) .zikr-text {
+            color: #0284c7;
+        }
+
+        .zikr-fade-out {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        
+        .zikr-fade-in {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         /* =========================================
@@ -95,6 +132,10 @@
                 background: #1e293b;
                 box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
             }
+
+            .zikr-text {
+                font-size: 1.4rem;
+            }
         }
     </style>
 </head>
@@ -115,11 +156,8 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
-                <div class="d-flex align-items-center gap-3 p-3 mb-2 border-bottom">
-                    <img src="https://ui-avatars.com/api/?name=Admin&background=6366f1&color=fff" class="rounded-circle" width="45" height="45">
-                    <div>
-                        <span class="d-block fw-bold text-dark" id="userEmailDisplayMobile" style="font-size: 1.1rem;">...</span>
-                    </div>
+                <div class="d-flex justify-content-center p-3 mb-2 border-bottom">
+                    <img src="https://ui-avatars.com/api/?name=User&background=6366f1&color=fff" class="rounded-circle shadow-sm" width="55" height="55">
                 </div>
 
                 <ul class="navbar-nav align-items-center gap-2 mt-2">
@@ -176,27 +214,18 @@
                 </a>
             </div>
 
-            <div class="mt-auto p-3 border-top" style="border-color: rgba(0,0,0,0.05) !important;">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="https://ui-avatars.com/api/?name=Admin&background=6366f1&color=fff" class="rounded-circle shadow-sm" width="40" height="40">
-                    <div style="overflow: hidden;">
-                        <span class="d-block fw-bold text-truncate text-dark" style="font-size: 0.95rem;" id="userEmailDisplayDesktop">...</span>
-                    </div>
-                </div>
+            <div class="mt-auto p-3 border-top d-flex justify-content-center" style="border-color: rgba(0,0,0,0.05) !important;">
+                <img src="https://ui-avatars.com/api/?name=User&background=6366f1&color=fff" class="rounded-circle shadow-sm" width="45" height="45">
             </div>
         </div>
 
 
-        <div id="page-content-wrapper" class="w-100 p-4 pt-lg-5"> <div class="row mb-5">
-                <div class="col-md-4">
-                    <div class="stat-card-simple">
-                        <div class="icon-box bg-soft-primary ms-0">
-                            <i class="fa-solid fa-layer-group"></i>
-                        </div>
-                        <div>
-                            <h6 class="text-muted mb-1 small">کۆی پڕۆژەکان</h6>
-                            <h3 class="fw-bold m-0 text-dark" id="totalProjects">...</h3>
-                        </div>
+        <div id="page-content-wrapper" class="w-100 p-4 pt-lg-5"> 
+            
+            <div class="row justify-content-center mb-5">
+                <div class="col-md-8 col-lg-6">
+                    <div class="zikr-box">
+                        <div id="zikrDisplay" class="zikr-text zikr-fade-in">سُبْحَانَ اللّٰهِ</div>
                     </div>
                 </div>
             </div>
@@ -220,31 +249,58 @@
     <script src="js/dark-mode.js"></script>
 
     <script>
-        // Global Variables
+        // ===============================================
+        // سیستەمی گۆڕینی زیکرەکان
+        // ===============================================
+        const zikrs = [
+            "سُبْحَانَ اللّٰهِ",
+            "الْحَمْدُ لِلّٰهِ",
+            "لَا إِلٰهَ إِلَّا اللّٰهُ",
+            "اللّٰهُ أَكْبَرُ",
+            "سُبْحَانَ اللّٰهِ وَبِحَمْدِهِ ، سُبْحَانَ اللّٰهِ الْعَظِيمِ",
+            "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللّٰهِ",
+            "أَسْتَغْفِرُ اللّٰهَ وَأَتُوبُ إِلَيْهِ",
+            "اللَّهُمَّ صَلِّ عَلَىٰ مُحَمَّدٍ وَعَلَىٰ آلِ مُحَمَّدٍ"
+        ];
+        
+        let currentZikrIndex = 0;
+        const zikrElement = document.getElementById('zikrDisplay');
+
+        function changeZikr() {
+            // یەکەمجار ئەنیمەیشنی دیارنەمان کارپێدەکەین
+            zikrElement.classList.remove('zikr-fade-in');
+            zikrElement.classList.add('zikr-fade-out');
+
+            setTimeout(() => {
+                // دوای نیو چرکە زیکرەکە دەگۆڕین
+                currentZikrIndex = (currentZikrIndex + 1) % zikrs.length;
+                zikrElement.innerText = zikrs[currentZikrIndex];
+                
+                // پاشان ئەنیمەیشنی دەرکەوتن کارپێدەکەین
+                zikrElement.classList.remove('zikr-fade-out');
+                zikrElement.classList.add('zikr-fade-in');
+            }, 800); // ئەمە کاتی دیارنەمانەکەیە
+        }
+
+        // گۆڕینی زیکرەکان هەموو 6 چرکە جارێک
+        setInterval(changeZikr, 3500);
+
+        // ===============================================
+        // Global Variables & Auth
+        // ===============================================
         let isOwner = false;
         let allProjects = [];
 
-        // Auth & Check Role
         firebase.auth().onAuthStateChanged(async (user) => {
             if (user) {
-                const emailPrefix = user.email.split('@')[0];
-                
-                // پڕکردنەوەی ناوی ئەکاونت لە هەردوو جێگاکە
-                const desktopEmail = document.getElementById('userEmailDisplayDesktop');
-                const mobileEmail = document.getElementById('userEmailDisplayMobile');
-                if(desktopEmail) desktopEmail.innerText = emailPrefix;
-                if(mobileEmail) mobileEmail.innerText = emailPrefix;
-
                 try {
                     const doc = await db.collection("users").doc(user.email).get();
                     if (doc.exists && doc.data().role === 'owner') {
                         isOwner = true;
 
-                        // پیشاندانی سێتینگ لە کۆمپیوتەر
                         const settingsLink = document.getElementById('navSettings');
                         if (settingsLink) settingsLink.classList.remove('d-none');
 
-                        // پیشاندانی سێتینگ لە مۆبایل
                         const settingsLinkMobile = document.getElementById('navSettingsMobile');
                         if (settingsLinkMobile) settingsLinkMobile.classList.remove('d-none');
 
@@ -279,13 +335,12 @@
             });
         });
 
-        // گونجاندنی ئایکۆن لەکاتی کردنەوەی پەڕەکە
         if (localStorage.getItem('theme') === 'dark' || document.body.classList.contains('dark-mode')) {
             updateDarkIcons('fa-sun');
         }
 
         // ============================================================
-        // Load Forms (Updated for Drag & Drop Order + Auto Fix)
+        // Load Forms
         // ============================================================
         db.collection("forms").orderBy("order", "asc").onSnapshot(async (snapshot) => {
             const container = document.getElementById('formsContainer');
@@ -305,9 +360,6 @@
                     return;
                 }
             }
-
-            const totalCount = snapshot.size;
-            document.getElementById('totalProjects').innerText = totalCount;
 
             allProjects = [];
             snapshot.forEach(doc => {
@@ -339,7 +391,6 @@
                 const viewLink = `${window.location.origin}/view.html?id=${id}`;
                 const delay = index * 0.05;
 
-                // چارەسەری کێشەی بەروار (Invalid Date)
                 let createdDate = '';
                 if (data.createdAt) {
                     if (typeof data.createdAt.toDate === 'function') {
@@ -352,7 +403,6 @@
                     }
                 }
 
-                // ئەگەر بەروارەکە دروست بوو، ئەوا نیشانی بدە. ئەگەرنا بیشارەوە.
                 let dateHtml = '';
                 if (createdDate && createdDate !== 'Invalid Date') {
                     dateHtml = `<div class="elegant-date"><i class="fa-regular fa-clock"></i> دروستکراوە لە: ${createdDate}</div>`;
@@ -414,9 +464,6 @@
             });
         }
 
-        // ===============================================
-        // ١. گۆڕینی دۆخی پڕۆژە
-        // ===============================================
         async function toggleProjectStatus(id, currentStatus) {
             const actionText = currentStatus ? "ڕاگرتن" : "چالاککردن";
             const confirmColor = currentStatus ? "#f59e0b" : "#10b981";
@@ -437,13 +484,11 @@
                     await db.collection("forms").doc(id).update({
                         active: !currentStatus
                     });
-
                     const Toast = Swal.mixin({
                         toast: true, position: 'top-end', showConfirmButton: false, timer: 3000,
                         timerProgressBar: true
                     });
                     Toast.fire({ icon: 'success', title: 'دۆخی فۆڕمەکە گۆڕدرا' });
-
                 } catch (error) {
                     console.error(error);
                     Swal.fire('هەڵە!', 'کێشەیەک ڕوویدا.', 'error');
@@ -451,9 +496,6 @@
             }
         }
 
-        // ===============================================
-        // ٢. سڕینەوەی پڕۆژە
-        // ===============================================
         async function deleteForm(id) {
             const result = await Swal.fire({
                 title: 'دڵنیایت لە سڕینەوە؟',
@@ -493,9 +535,6 @@
             });
         }
 
-        // ===============================================
-        // کارپێکردنی مینیۆی مۆبایل
-        // ===============================================
         document.addEventListener('DOMContentLoaded', () => {
             const toggleBtn = document.getElementById('mobileMenuToggler');
             const navMenu = document.getElementById('navbarNav');
