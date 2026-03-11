@@ -5,15 +5,26 @@ let allArchivedCases = [];
 
 firebase.auth().onAuthStateChanged(async (user) => {
     if (user) {
-        const userDoc = await db.collection("users").doc(user.email).get();
+        // بەکارهێنانی toLowerCase() بۆ دڵنیایی زیاتر لە خوێندنەوەی ئیمەیڵەکە
+        const userDoc = await db.collection("users").doc(user.email.toLowerCase()).get();
+        
         if (userDoc.exists) {
             const userData = userDoc.data();
 
+            // پشکنینی دەسەڵاتی ئەرشیف: ئەگەر خاوەن نەبوو وە دەسەڵاتی ئەرشیفیشی نەبوو
+            if (userData.role !== 'owner' && !userData.canViewArchive) {
+                alert("تۆ دەسەڵاتی چوونەژوورەوەت نییە بۆ بەشی ئەرشیف!");
+                window.location.href = "index.html"; // گەڕانەوە بۆ پەڕەی سەرەکی
+                return; // وەستاندنی خوێندنەوەی کۆدەکانی خوارەوە
+            }
+
+            // شاردنەوەی دوگمەی سێتینگ ئەگەر خاوەن نەبوو
             if (userData.role !== 'owner') {
                 const settingsLink = document.querySelector('a[href="settings.html"]');
                 if (settingsLink) settingsLink.style.display = 'none';
             }
 
+            // ئەگەر دەسەڵاتی هەبوو، با ئەرشیفەکە کار بکات
             initArchive();
         } else {
             alert("تۆ ڕێگەپێدراو نیت!");

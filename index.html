@@ -115,6 +115,14 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="d-flex align-items-center gap-3 p-3 mb-2 border-bottom">
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=6366f1&color=fff" class="rounded-circle" width="45" height="45">
+                    <div>
+                        <span class="d-block fw-bold text-dark" id="userEmailDisplayMobile" style="font-size: 0.95rem;">...</span>
+                        <small class="text-muted">بەڕێوەبەر</small>
+                    </div>
+                </div>
+
                 <ul class="navbar-nav align-items-center gap-2 mt-2">
                     <li class="nav-item w-100"><a class="nav-link fw-bold active text-primary text-center"
                             href="index.html"><i class="fa-solid fa-house me-1"></i> سەرەکی</a></li>
@@ -122,6 +130,13 @@
                                 class="fa-solid fa-hand-holding-heart me-1"></i> کەیسی نوێ</a></li>
                     <li class="nav-item w-100 d-none" id="navSettingsMobile"><a class="nav-link fw-bold text-center"
                             href="settings.html"><i class="fa-solid fa-gear me-1"></i> سێتینگ</a></li>
+                            
+                    <li class="nav-item w-100 border-top pt-2 mt-1">
+                        <a class="nav-link fw-bold text-secondary text-center dark-mode-toggle" href="#">
+                            <i class="fa-solid fa-moon me-1 dark-mode-icon"></i> دۆخی تاریک
+                        </a>
+                    </li>
+
                     <li class="nav-item w-100 border-top pt-2 mt-1"><a class="nav-link fw-bold text-danger text-center"
                             href="#" onclick="logout()"><i class="fa-solid fa-right-from-bracket me-1"></i> دەرچوون</a>
                     </li>
@@ -153,41 +168,28 @@
                     <i class="fa-solid fa-gear"></i> <span>سێتینگ</span>
                 </a>
 
-                <a href="#" onclick="logout()" class="mobile-nav-item text-danger mt-5">
+                <a href="#" class="mobile-nav-item text-secondary mt-5 dark-mode-toggle">
+                    <i class="fa-solid fa-moon dark-mode-icon"></i> <span>دۆخی تاریک</span>
+                </a>
+
+                <a href="#" onclick="logout()" class="mobile-nav-item text-danger mt-2">
                     <i class="fa-solid fa-right-from-bracket"></i> <span>دەرچوون</span>
                 </a>
             </div>
 
-            <div class="mt-auto p-3 d-md-none text-center">
-                <small class="text-muted fw-bold">Admin Panel</small>
+            <div class="mt-auto p-3 border-top" style="border-color: rgba(0,0,0,0.05) !important;">
+                <div class="d-flex align-items-center gap-3">
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=6366f1&color=fff" class="rounded-circle shadow-sm" width="40" height="40">
+                    <div style="overflow: hidden;">
+                        <span class="d-block fw-bold text-truncate text-dark" style="font-size: 0.85rem;" id="userEmailDisplayDesktop">...</span>
+                        <small class="text-muted" style="font-size: 0.75rem;">پڕۆفایل</small>
+                    </div>
+                </div>
             </div>
         </div>
 
 
-        <div id="page-content-wrapper" class="w-100 p-4">
-
-            <nav class="navbar navbar-light bg-transparent mb-4">
-                <div class="container-fluid px-0 d-flex justify-content-end">
-                    <div class="d-flex align-items-center gap-3">
-                        <div
-                            class="bg-white px-3 py-2 rounded-pill shadow-sm border d-flex align-items-center gap-3 profile-badge">
-                            <img src="https://ui-avatars.com/api/?name=Admin&background=6366f1&color=fff"
-                                class="rounded-circle" width="35" height="35">
-                            <div class="d-none d-sm-block">
-                                <span class="d-block text-dark fw-bold" style="font-size: 0.85rem;"
-                                    id="userEmailDisplay">...</span>
-                            </div>
-                        </div>
-                        <button id="darkModeToggle"
-                            class="btn btn-light rounded-circle shadow-sm border d-flex justify-content-center align-items-center"
-                            style="width: 40px; height: 40px;">
-                            <i id="darkModeIcon" class="fa-solid fa-moon text-primary"></i>
-                        </button>
-                    </div>
-                </div>
-            </nav>
-
-            <div class="row mb-5">
+        <div id="page-content-wrapper" class="w-100 p-4 pt-lg-5"> <div class="row mb-5">
                 <div class="col-md-4">
                     <div class="stat-card-simple">
                         <div class="icon-box bg-soft-primary ms-0">
@@ -227,7 +229,13 @@
         // Auth & Check Role
         firebase.auth().onAuthStateChanged(async (user) => {
             if (user) {
-                document.getElementById('userEmailDisplay').innerText = user.email.split('@')[0];
+                const emailPrefix = user.email.split('@')[0];
+                
+                // پڕکردنەوەی ناوی ئەکاونت لە هەردوو جێگاکە
+                const desktopEmail = document.getElementById('userEmailDisplayDesktop');
+                const mobileEmail = document.getElementById('userEmailDisplayMobile');
+                if(desktopEmail) desktopEmail.innerText = emailPrefix;
+                if(mobileEmail) mobileEmail.innerText = emailPrefix;
 
                 try {
                     const doc = await db.collection("users").doc(user.email).get();
@@ -247,6 +255,36 @@
                 } catch (e) { console.error(e); }
             }
         });
+
+        // ===============================================
+        // کۆدی تایبەت بە کارپێکردنی دوگمەی دۆخی تاریک
+        // ===============================================
+        function updateDarkIcons(iconClass) {
+            document.querySelectorAll('.dark-mode-icon').forEach(icon => {
+                icon.classList.remove('fa-moon', 'fa-sun');
+                icon.classList.add(iconClass);
+            });
+        }
+
+        document.querySelectorAll('.dark-mode-toggle').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (document.body.classList.contains('dark-mode')) {
+                    document.body.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                    updateDarkIcons('fa-moon');
+                } else {
+                    document.body.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                    updateDarkIcons('fa-sun');
+                }
+            });
+        });
+
+        // گونجاندنی ئایکۆن لەکاتی کردنەوەی پەڕەکە
+        if (localStorage.getItem('theme') === 'dark' || document.body.classList.contains('dark-mode')) {
+            updateDarkIcons('fa-sun');
+        }
 
         // ============================================================
         // Load Forms (Updated for Drag & Drop Order + Auto Fix)
@@ -303,7 +341,6 @@
                 const viewLink = `${window.location.origin}/view.html?id=${id}`;
                 const delay = index * 0.05;
 
-                // --- چارەسەری کێشەی بەروار ---
                 let createdDate = 'نوێ';
                 if (data.createdAt) {
                     if (typeof data.createdAt.toDate === 'function') {
@@ -313,16 +350,12 @@
                     }
                 }
 
-                // --- هێنانی ڕەنگی پڕۆژەکە ---
-                // ئەگەر پڕۆژەکە کۆن بوو و ڕەنگی نەبوو، ڕەنگی شین (#38bdf8) وەردەگرێت
                 const projectColor = data.color || '#38bdf8';
 
-                // --- دیزاینی دۆخی پڕۆژە ---
                 let statusBadge = isActive
                     ? `<span class="elegant-status active"><i class="fa-solid fa-check"></i> چالاکە</span>`
                     : `<span class="elegant-status paused"><i class="fa-solid fa-pause"></i> ڕاگیراوە</span>`;
 
-                // --- دەسەڵاتەکانی خاوەن پڕۆژە ---
                 let ownerActions = '';
                 if (isOwner) {
                     ownerActions = `
@@ -342,7 +375,6 @@
                     </div>`;
                 }
 
-                // --- دروستکردنی کۆدی HTML بۆ کارتەکە ---
                 container.innerHTML += `
             <div class="col-md-6 col-lg-4 mb-4 animate-up" style="animation-delay: ${delay}s">
                 <div class="project-card-elegant" style="--card-color: ${projectColor}; border-top: 4px solid var(--card-color);">
@@ -374,7 +406,9 @@
                 </div>
             </div>`;
             });
-        }        // ===============================================
+        }
+
+        // ===============================================
         // ١. گۆڕینی دۆخی پڕۆژە
         // ===============================================
         async function toggleProjectStatus(id, currentStatus) {

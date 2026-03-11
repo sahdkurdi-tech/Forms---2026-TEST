@@ -217,8 +217,7 @@
                     <div class="row g-4">
                         <div class="col-lg-4">
                             <div class="modern-card p-4">
-                                <h5 class="fw-bold mb-4 text-success"><i class="fa-solid fa-user-plus"></i> زیادکردنی
-                                    کارمەند</h5>
+                                <h5 class="fw-bold mb-4 text-success"><i class="fa-solid fa-user-plus"></i> زیادکردنی کارمەند</h5>
 
                                 <div class="mb-3">
                                     <label class="form-label text-muted small fw-bold">ئیمەیڵ</label>
@@ -227,8 +226,7 @@
                                 </div>
 
                                 <div class="p-3 bg-light rounded-3 mb-3">
-                                    <label class="form-label fw-bold mb-2 small text-uppercase text-muted">دەسەڵاتە
-                                        سەرەتاییەکان</label>
+                                    <label class="form-label fw-bold mb-2 small text-uppercase text-muted">دەسەڵاتە سەرەتاییەکان</label>
                                     <div class="form-check form-switch mb-2">
                                         <input class="form-check-input" type="checkbox" id="permDelete">
                                         <label class="form-check-label" for="permDelete">ڕێگەدان بە سڕینەوە</label>
@@ -243,8 +241,11 @@
                                     </div>
                                     <div class="form-check form-switch border-top pt-2 mt-2">
                                         <input class="form-check-input" type="checkbox" id="permDistribute">
-                                        <label class="form-check-label fw-bold text-primary"
-                                            for="permDistribute">ڕێگەدان بە دابەشکردن</label>
+                                        <label class="form-check-label fw-bold text-primary" for="permDistribute">ڕێگەدان بە دابەشکردن</label>
+                                    </div>
+                                    <div class="form-check form-switch border-top pt-2 mt-2">
+                                        <input class="form-check-input" type="checkbox" id="permArchive">
+                                        <label class="form-check-label fw-bold text-info" for="permArchive">ڕێگەدان بە ئەرشیف</label>
                                     </div>
                                 </div>
 
@@ -269,7 +270,7 @@
                                                 <th class="text-center">دەستکاری</th>
                                                 <th class="text-center">Excel</th>
                                                 <th class="text-center">دابەشکردن</th>
-                                                <th class="text-end">کردار</th>
+                                                <th class="text-center">ئەرشیف</th> <th class="text-end">کردار</th>
                                             </tr>
                                         </thead>
                                         <tbody id="usersTableBody"></tbody>
@@ -347,8 +348,11 @@
                         </div>
                         <div class="form-check form-switch border-top pt-3 mt-3">
                             <input class="form-check-input" type="checkbox" id="editPermDistribute">
-                            <label class="form-check-label fw-bold text-primary" for="editPermDistribute"><i
-                                    class="fa-solid fa-share-nodes"></i> دەسەڵاتی سیستەمی دابەشکردن</label>
+                            <label class="form-check-label fw-bold text-primary" for="editPermDistribute"><i class="fa-solid fa-share-nodes"></i> دەسەڵاتی دابەشکردن</label>
+                        </div>
+                        <div class="form-check form-switch border-top pt-3 mt-3">
+                            <input class="form-check-input" type="checkbox" id="editPermArchive">
+                            <label class="form-check-label fw-bold text-info" for="editPermArchive"><i class="fa-solid fa-box-archive"></i> دەسەڵاتی بینینی ئەرشیف</label>
                         </div>
                     </div>
                 </div>
@@ -401,10 +405,10 @@
             }
         });
 
-        // --- Forms Logic (With Auto-Fix & DragDrop & Colors) ---
+        // --- Forms Logic ---
         async function createNewList() {
             const name = document.getElementById('newListName').value;
-            const color = document.getElementById('newListColor').value; // خوێندنەوەی ڕەنگ
+            const color = document.getElementById('newListColor').value;
 
             if (!name) return;
             try {
@@ -413,25 +417,23 @@
 
                 await db.collection("forms").add({
                     title: name,
-                    color: color, // خەزنکردنی ڕەنگەکە
+                    color: color, 
                     fields: [],
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     order: newOrder
                 });
 
                 document.getElementById('newListName').value = '';
-                document.getElementById('newListColor').value = '#38bdf8'; // گەڕاندنەوە بۆ باری ئاسایی
+                document.getElementById('newListColor').value = '#38bdf8'; 
                 alert("پڕۆژەکە دروستکرا!");
             } catch (e) { alert("Error"); }
         }
 
-        // فەنکشنی نوێ بۆ گۆڕینی ڕەنگی پڕۆژە کۆنەکان
         async function updateProjectColor(id, newColor) {
             try {
                 await db.collection("forms").doc(id).update({
                     color: newColor
                 });
-                // پیشاندانی ئاگادارکەرەوەیەکی بچووک کاتێک ڕەنگەکە دەگۆڕێت
                 const Toast = Swal.mixin({
                     toast: true, position: 'top-end', showConfirmButton: false, timer: 1500
                 });
@@ -460,15 +462,13 @@
 
             snapshot.forEach((doc) => {
                 const data = doc.data();
-                const projectColor = data.color || '#94a3b8'; // ئەگەر ڕەنگی نەبوو (واتە کۆن بوو)، ڕەنگێکی کاڵ وەردەگرێت
+                const projectColor = data.color || '#94a3b8';
 
                 container.innerHTML += `
                 <div class="list-group-item d-flex justify-content-between align-items-center p-3 border rounded-4 bg-white shadow-sm mb-2 hover-scale" data-id="${doc.id}">
                     <div class="d-flex align-items-center gap-3">
                         <i class="fa-solid fa-grip-vertical text-muted" style="cursor: grab; font-size: 1.2rem;"></i>
-                        
                         <input type="color" onchange="updateProjectColor('${doc.id}', this.value)" value="${projectColor}" class="form-control form-control-color p-0 border-0" style="width: 35px; height: 35px; cursor: pointer; border-radius: 8px;" title="کلیک بکە بۆ گۆڕینی ڕەنگ">
-                        
                         <h6 class="mb-0 fw-bold" style="color: ${projectColor}">${data.title}</h6>
                     </div>
                     <div class="d-flex gap-2">
@@ -536,13 +536,14 @@
 
         async function deleteForm(id) { if (confirm("دڵنیایت؟")) await db.collection("forms").doc(id).delete(); }
 
-        // --- Users Logic ---
+        // --- Users Logic (Updated with Archive Permission) ---
         async function addUser() {
             const email = document.getElementById('newUserEmail').value.trim().toLowerCase();
             const canDelete = document.getElementById('permDelete').checked;
             const canEdit = document.getElementById('permEdit').checked;
             const canExport = document.getElementById('permExport').checked;
             const canDistribute = document.getElementById('permDistribute').checked;
+            const canViewArchive = document.getElementById('permArchive') ? document.getElementById('permArchive').checked : false; // دەسەڵاتی ئەرشیف
 
             if (!email) return alert("تکایە ئیمەیڵ بنووسە!");
 
@@ -554,14 +555,18 @@
                     canEdit: canEdit,
                     canExport: canExport,
                     canDistribute: canDistribute,
+                    canViewArchive: canViewArchive, // پاشەکەوتکردنی دەسەڵاتی ئەرشیف
                     addedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
+                
                 alert("کارمەند بە سەرکەوتوویی زیادکرا");
+                
                 document.getElementById('newUserEmail').value = '';
                 document.getElementById('permDelete').checked = false;
                 document.getElementById('permEdit').checked = false;
                 document.getElementById('permExport').checked = false;
                 document.getElementById('permDistribute').checked = false;
+                if(document.getElementById('permArchive')) document.getElementById('permArchive').checked = false;
 
             } catch (e) { alert(e.message); }
         }
@@ -588,7 +593,7 @@
                     <td class="text-center">${user.canEdit || isOwner ? iconTrue : iconFalse}</td>
                     <td class="text-center">${user.canExport || isOwner ? iconTrue : iconFalse}</td>
                     <td class="text-center">${user.canDistribute || isOwner ? iconTrue : iconFalse}</td>
-                    <td class="text-end">
+                    <td class="text-center">${user.canViewArchive || isOwner ? iconTrue : iconFalse}</td> <td class="text-end">
                         ${!isOwner ? `
                             <div class="d-flex gap-2 justify-content-end">
                                 <button onclick="openEditUserModal('${user.email}')" class="btn btn-sm btn-outline-primary rounded-pill px-3" title="دەستکاری"><i class="fa-solid fa-pen"></i></button>
@@ -609,6 +614,7 @@
             document.getElementById('editPermEdit').checked = user.canEdit || false;
             document.getElementById('editPermExport').checked = user.canExport || false;
             document.getElementById('editPermDistribute').checked = user.canDistribute || false;
+            document.getElementById('editPermArchive').checked = user.canViewArchive || false; // پڕکردنەوەی چەکبۆکسی ئەرشیف
             new bootstrap.Modal(document.getElementById('userEditModal')).show();
         }
 
@@ -619,7 +625,8 @@
                 canDelete: document.getElementById('editPermDelete').checked,
                 canEdit: document.getElementById('editPermEdit').checked,
                 canExport: document.getElementById('editPermExport').checked,
-                canDistribute: document.getElementById('editPermDistribute').checked
+                canDistribute: document.getElementById('editPermDistribute').checked,
+                canViewArchive: document.getElementById('editPermArchive').checked // نوێکردنەوەی دەسەڵاتی ئەرشیف
             };
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> چاوەڕوانبە...';

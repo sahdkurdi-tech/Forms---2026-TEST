@@ -27,6 +27,14 @@ firebase.auth().onAuthStateChanged(async (user) => {
                 }
             }
 
+            // شاردنەوەی هەموو لینک و دوگمەکانی ئەرشیف ئەگەر کەسەکە دەسەڵاتی نەبوو
+if (currentUserPerms.role !== 'owner' && !currentUserPerms.canViewArchive) {
+    const archiveLinks = document.querySelectorAll('a[href="aid-archive.html"]');
+    archiveLinks.forEach(link => {
+        link.style.display = 'none';
+    });
+}
+
             initBoard();
         } else {
             alert("تۆ ڕێگەپێدراو نیت!");
