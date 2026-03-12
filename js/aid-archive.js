@@ -243,7 +243,7 @@ function renderSingleCase(docId, data, listContainer) {
     
     const catDays = data.assignedAt ? getDaysBetween(data.assignedAt, data.completedAt || data.assignedAt) : 0;
     
-    const isDelayed = (distDays >= 7 || catDays >= 0);
+    const isDelayed = (distDays >= 7 || catDays >= 7);
     const cardBorderClass = isDelayed ? 'case-delayed-border' : '';
     const warningBadge = isDelayed ? `<div class="case-delayed-badge fw-bold"><i class="fa-solid fa-triangle-exclamation ms-1"></i> ئەم کەیسە زیاتر لە ٧ ڕۆژی پێچووە!</div>` : '';
 

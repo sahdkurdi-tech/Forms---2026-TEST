@@ -15,17 +15,30 @@ firebase.auth().onAuthStateChanged(async (user) => {
 });
 
 // ==========================================
-// ١. بەڕێوەبردنی بەشەکان (کۆدی پێشوو)
+// ١. بەڕێوەبردنی بەشەکان لەگەڵ ڕەنگەکانیان
 // ==========================================
 async function addCategory() {
     const catInput = document.getElementById('catName');
+    const catColorInput = document.getElementById('catColor'); // وەرگرتنی خانەی ڕەنگ
+    
     const name = catInput.value.trim();
+    const color = catColorInput ? catColorInput.value : '#03b6f7'; // ئەگەر ڕەنگی هەڵنەبژاردبوو، شینی کاڵ بەکاردێت
+    
     if (!name) return alert("تکایە ناوی بەشەکە بنووسە!");
+    
     try {
-        await db.collection("aid_categories").add({ name: name, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+        await db.collection("aid_categories").add({ 
+            name: name, 
+            color: color, // پاشەکەوتکردنی ڕەنگەکە لە داتابەیس
+            createdAt: firebase.firestore.FieldValue.serverTimestamp() 
+        });
+        
         catInput.value = '';
+        if(catColorInput) catColorInput.value = '#03b6f7'; // گەڕاندنەوەی ڕەنگەکە بۆ باری ئاسایی
         Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'بەشەکە زیادکرا', showConfirmButton: false, timer: 1500 });
-    } catch (error) { alert("هەڵە ڕوویدا!"); }
+    } catch (error) { 
+        alert("هەڵە ڕوویدا!"); 
+    }
 }
 
 function loadCategories() {
@@ -33,8 +46,20 @@ function loadCategories() {
         const list = document.getElementById('categoriesList');
         list.innerHTML = '';
         if (snapshot.empty) return list.innerHTML = '<li class="list-group-item text-center text-muted">هیچ بەشێک نییە</li>';
+        
         snapshot.forEach(doc => {
-            list.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-center">${doc.data().name} <button class="btn btn-sm btn-danger" onclick="deleteCategory('${doc.id}')"><i class="fa-solid fa-trash"></i></button></li>`;
+            const data = doc.data();
+            const catColor = data.color || '#03b6f7'; // ئەگەر بەشە کۆنەکان ڕەنگیان نەبوو، شین دەبن
+            
+            // دروستکردنی لیستەکە بە دانانی بازنەیەکی ڕەنگاوڕەنگ لە تەنیشت ناوەکە
+            list.innerHTML += `
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>
+                    <span style="display:inline-block; width:15px; height:15px; border-radius:50%; background-color:${catColor}; margin-left:10px; vertical-align:middle; border: 1px solid rgba(0,0,0,0.1);"></span>
+                    ${data.name}
+                </span>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory('${doc.id}')"><i class="fa-solid fa-trash"></i></button>
+            </li>`;
         });
     });
 }

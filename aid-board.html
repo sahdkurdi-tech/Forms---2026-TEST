@@ -449,19 +449,27 @@ body.dark-mode .tracker-line.warning { background-color: #f59e0b; }
                 </div>
 
                 <div class="tab-pane fade" id="categories" role="tabpanel">
-                    <div class="row mb-4">
-                        <div class="col-md-4 mx-auto">
-                            <select id="categoryFilter" class="form-select rounded-pill" onchange="loadCategoryCases()">
-                                <option value="">هەڵبژاردنی بەش...</option>
-                            </select>
+                    
+                    <div id="categories-view" class="container-fluid p-0">
+                        <div class="row g-3" id="categories-list-container">
+                            <div class="text-center text-muted w-100 mt-5"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>
                         </div>
                     </div>
-                    <div class="row" id="categoryCasesList">
-                        <div class="text-center text-muted mt-4"><i class="fa-solid fa-arrow-up"></i> تکایە سەرەتا بەشێک
-                            هەڵبژێرە</div>
+
+                    <div id="cases-view" class="container-fluid p-0 d-none">
+                        <div class="d-flex justify-content-between align-items-center mb-4 bg-light p-3 rounded shadow-sm">
+                            <h5 id="current-category-title" class="fw-bold text-primary m-0">ناوی بەش</h5>
+                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="showCategoriesView()">
+                                <i class="fa-solid fa-arrow-right me-1"></i> گەڕانەوە
+                            </button>
+                        </div>
+                        
+                        <div class="row g-3" id="category-cases-container">
+                            </div>
                     </div>
+
                 </div>
-            </div>
+                </div>
         </div>
     </div>
 
