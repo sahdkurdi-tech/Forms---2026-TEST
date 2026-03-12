@@ -20,7 +20,9 @@ if (!firebase.apps.length) {
 }
 const db = firebase.firestore();
 // چارەسەری کێشەی هێڵی کۆڕەک و بلۆکبوونی WebSockets
+// چارەسەری کێشەی هێڵی کۆڕەک و بلۆکبوونی WebSockets
 db.settings({
   experimentalForceLongPolling: true,
-  useFetchStreams: false
+  useFetchStreams: false,
+  merge: true // ئەم دێڕە زیادکرا بۆ لابردنی ئێرۆرەکەی کۆنسۆڵ
 });

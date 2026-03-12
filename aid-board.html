@@ -36,7 +36,7 @@
            ========================================= */
         @media (max-width: 991px) {
             #page-content-wrapper {
-                padding-top: 100px !important; /* بۆشایی بۆ خوارەوەی مینیۆکە */
+                padding-top: 100px !important;
             }
 
             @keyframes spinLight {
@@ -44,14 +44,13 @@
                 100% { transform: rotate(360deg); }
             }
 
-            /* باکسی دەرەوەی مینیۆکە (جێگیرکراوە) */
             .modern-navbar {
                 background: transparent !important;
                 border: none !important;
                 box-shadow: none !important;
                 padding: 2px;
                 border-radius: 52px;
-                position: fixed; /* لە کاتی سکڕۆڵ جێگیر دەبێت */
+                position: fixed;
                 top: 15px;
                 left: 0;
                 right: 0;
@@ -62,7 +61,6 @@
                 transition: border-radius 0.3s ease;
             }
 
-            /* دوو ڕووناکییە سپییەکە */
             .modern-navbar::before {
                 content: "";
                 position: absolute;
@@ -84,7 +82,6 @@
                 z-index: -1;
             }
 
-            /* بەشە سەرەکییەکەی ناوەوەی مینیۆکە */
             .navbar-inner-bg {
                 background: rgba(255, 255, 255, 0.95);
                 backdrop-filter: blur(15px);
@@ -105,14 +102,8 @@
                 box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
             }
 
-            /* کاتێک مینیۆکە دەکرێتەوە خڕییەکەی دەگۆڕێت */
-            .modern-navbar.menu-open {
-                border-radius: 22px;
-            }
-            
-            .modern-navbar.menu-open .navbar-inner-bg {
-                border-radius: 20px;
-            }
+            .modern-navbar.menu-open { border-radius: 22px; }
+            .modern-navbar.menu-open .navbar-inner-bg { border-radius: 20px; }
 
             #navbarNav {
                 background: transparent;
@@ -124,17 +115,8 @@
                 width: 100%;
             }
 
-            /* ڕێکخستنی دوگمەکانی مینیۆی مۆبایل */
-            #navbarNav .navbar-nav {
-                width: 100%;
-                padding: 0 5px;
-            }
-
-            #navbarNav .nav-item {
-                width: 100%;
-                margin-bottom: 8px; 
-            }
-            
+            #navbarNav .navbar-nav { width: 100%; padding: 0 5px; }
+            #navbarNav .nav-item { width: 100%; margin-bottom: 8px; }
             #navbarNav .nav-link {
                 width: 100%; 
                 text-align: center;
@@ -148,19 +130,13 @@
                 border: 1px solid transparent;
             }
 
-            #navbarNav .nav-link:hover {
-                background-color: #f1f5f9;
-            }
-
+            #navbarNav .nav-link:hover { background-color: #f1f5f9; }
             #navbarNav .nav-link.active {
                 background-color: rgba(3, 182, 247, 0.1);
                 border-color: rgba(3, 182, 247, 0.2);
             }
 
-            body.dark-mode #navbarNav .nav-link {
-                background-color: #334155;
-            }
-
+            body.dark-mode #navbarNav .nav-link { background-color: #334155; }
             body.dark-mode #navbarNav .nav-link.active {
                 background-color: rgba(56, 189, 248, 0.15);
                 border-color: rgba(56, 189, 248, 0.3);
@@ -186,12 +162,55 @@
             margin-bottom: 15px;
             box-shadow: var(--shadow);
             border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
         }
 
         .action-btn {
             font-size: 0.85rem;
             padding: 5px 10px;
             margin: 2px;
+        }
+
+        /* =========================================
+           دیزاینە نوێیەکان بۆ کات و ڕێکەوت و ئاگاداری
+           ========================================= */
+        .time-tracking-box {
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        body.dark-mode .time-tracking-box {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* کارتی دواکەوتوو (٧ ڕۆژ زیاتر) */
+        .case-delayed-border {
+            border: 2px solid #ef4444 !important;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.2) !important;
+        }
+
+        .case-delayed-badge {
+            background-color: #ef4444;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            animation: pulseWarning 2s infinite;
+        }
+
+        @keyframes pulseWarning {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
         }
 
         /* =========================================
@@ -240,30 +259,46 @@
            گۆڕینی ڕەنگی ڕووناکی مینیۆکە
            ========================================= */
         @media (max-width: 991px) {
-            /* ڕەنگی شینی لۆگۆکە بۆ دۆخی ئاسایی (ڕووناک) */
             .modern-navbar::before {
                 background: conic-gradient(
                     transparent 0%, 
                     transparent 40%, 
-                    #03b6f7 50%, /* ڕەنگی لۆگۆ */
+                    #03b6f7 50%, 
                     transparent 60%, 
                     transparent 90%, 
-                    #03b6f7 100% /* ڕەنگی لۆگۆ */
+                    #03b6f7 100% 
                 ) !important;
             }
 
-            /* ڕەنگی سپی بۆ دۆخی تاریک (بۆ ئەوەی زەق بێت) */
             body.dark-mode .modern-navbar::before {
                 background: conic-gradient(
                     transparent 0%, 
                     transparent 40%, 
-                    #ffffff 50%, /* ڕەنگی سپی */
+                    #ffffff 50%, 
                     transparent 60%, 
                     transparent 90%, 
-                    #ffffff 100% /* ڕەنگی سپی */
+                    #ffffff 100% 
                 ) !important;
             }
         }
+
+        /* =========================================
+   دیزاینی هێڵەکانی کات (Days Tracker)
+   ========================================= */
+.tracker-line {
+    width: 14px;
+    height: 5px;
+    border-radius: 3px;
+    background-color: #e2e8f0; /* ڕەنگی هێڵی بەتاڵ (ڕۆژە ڕۆیشتووەکان) */
+    transition: all 0.3s ease;
+}
+
+.tracker-line.active { background-color: #10b981; } /* سەوز بۆ کاتی ئاسایی */
+.tracker-line.warning { background-color: #f59e0b; } /* پرتەقاڵی بۆ کاتی کەم */
+
+body.dark-mode .tracker-line { background-color: #334155; }
+body.dark-mode .tracker-line.active { background-color: #10b981; }
+body.dark-mode .tracker-line.warning { background-color: #f59e0b; }
     </style>
 </head>
 
@@ -271,9 +306,9 @@
 
     <nav class="navbar modern-navbar mx-auto d-lg-none" style="max-width: 92%;">
         <div class="navbar-inner-bg">
-<a class="navbar-brand d-flex align-items-center m-0" href="index.html">
-    <img src="logo3.png" alt="MROVDOSTAN" height="38" style="object-fit: contain;">
-</a>
+            <a class="navbar-brand d-flex align-items-center m-0" href="index.html">
+                <img src="logo3.png" alt="MROVDOSTAN" height="38" style="object-fit: contain;">
+            </a>
             <button class="navbar-toggler border-0 shadow-none p-0" type="button" id="mobileMenuToggler">
                 <i class="fa-solid fa-bars-staggered fa-lg text-primary"></i>
             </button>

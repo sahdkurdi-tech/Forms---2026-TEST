@@ -5,21 +5,76 @@ let categoriesCache = [];
 let isBoardInitialized = false;
 let currentUserPerms = {};
 
+// --- فەنکشنە نوێیەکان بۆ کات و ڕێکەوت ---
+function formatDateTime(timestamp) {
+    if (!timestamp) return '<span class="text-danger opacity-50">نەزانراو</span>';
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    if (isNaN(date.getTime())) return '<span class="text-danger opacity-50">نەزانراو</span>';
+    
+    const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+    const dateString = date.toLocaleDateString('ku-IQ', options);
+    const timeString = date.toLocaleTimeString('ku-IQ', { hour: '2-digit', minute: '2-digit', hour12: true });
+    return `${dateString} <span class="mx-1 text-muted">|</span> ${timeString}`;
+}
+
+function calculateDaysPassed(timestamp) {
+    if (!timestamp) return 0;
+    const pastDate = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    if (isNaN(pastDate.getTime())) return 0;
+    
+    const today = new Date();
+    const pastDay = new Date(pastDate.getFullYear(), pastDate.getMonth(), pastDate.getDate());
+    const currentDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    
+    const diffTime = currentDay - pastDay;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 0;
+}
+
+// فەنکشنی نوێ بۆ دروستکردنی ئەو ٧ هێڵەی کە داوات کرد
+function generateDaysTrackerHtml(daysPassed) {
+    let remainingDays = Math.max(0, 7 - daysPassed);
+    let linesHtml = '';
+    
+    // ئەگەر کاتەکەی کەم مابوو (٢ ڕۆژ یان کەمتر) با ڕەنگەکەی پرتەقاڵی بێت، ئەگەرنا سەوزە
+    let colorClass = remainingDays <= 2 ? 'warning' : 'active';
+    
+    for (let i = 0; i < 7; i++) {
+        if (i < remainingDays) {
+            // هێڵی پڕکراوە (ڕۆژی ماوە)
+            linesHtml += `<div class="tracker-line ${colorClass}"></div>`;
+        } else {
+            // هێڵی بەتاڵ (ڕۆژی ڕۆیشتوو)
+            linesHtml += `<div class="tracker-line"></div>`;
+        }
+    }
+    
+    return `
+        <div class="mt-2 pt-2 border-top">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="text-muted" style="font-size: 0.75rem;"><i class="fa-solid fa-hourglass-half me-1"></i> مـاوە:</span>
+                <div class="d-flex gap-1" dir="ltr">
+                    ${linesHtml}
+                </div>
+            </div>
+        </div>
+    `;
+}
+// ----------------------------------------
+
 firebase.auth().onAuthStateChanged(async (user) => {
     if (user) {
         const userDoc = await db.collection("users").doc(user.email).get();
         if (userDoc.exists) {
             currentUserPerms = userDoc.data();
 
-            // پیشاندانی دوگمەی سێتینگ تەنها ئەگەر کەسەکە خاوەن (owner) بوو
             if (currentUserPerms.role === 'owner') {
                 const settingSidebar = document.getElementById('navSettingsSidebar');
-                const settingMobile = document.getElementById('navSettingsMobile');
+                const settingMobile = document.getElementById('navSettingsMobileLi');
                 if (settingSidebar) settingSidebar.classList.remove('d-none');
                 if (settingMobile) settingMobile.classList.remove('d-none');
             }
 
-            // شاردنەوەی تابی "دابەشکردن" ئەگەر کەسەکە دەسەڵاتی نەبوو
             if (currentUserPerms.role !== 'owner' && !currentUserPerms.canDistribute) {
                 const distributeTabLi = document.getElementById('distribute-tab');
                 if (distributeTabLi) {
@@ -27,13 +82,12 @@ firebase.auth().onAuthStateChanged(async (user) => {
                 }
             }
 
-            // شاردنەوەی هەموو لینک و دوگمەکانی ئەرشیف ئەگەر کەسەکە دەسەڵاتی نەبوو
-if (currentUserPerms.role !== 'owner' && !currentUserPerms.canViewArchive) {
-    const archiveLinks = document.querySelectorAll('a[href="aid-archive.html"]');
-    archiveLinks.forEach(link => {
-        link.style.display = 'none';
-    });
-}
+            if (currentUserPerms.role !== 'owner' && !currentUserPerms.canViewArchive) {
+                const archiveLinks = document.querySelectorAll('a[href="aid-archive.html"]');
+                archiveLinks.forEach(link => {
+                    link.style.display = 'none';
+                });
+            }
 
             initBoard();
         } else {
@@ -194,7 +248,7 @@ function loadCategories() {
 }
 
 function generateDetailsHtml(data) {
-    let html = '<div class="mt-3 mb-3 p-2 border rounded shadow-sm" style="font-size: 0.9rem; max-height: 180px; overflow-y: auto;">';
+    let html = '<div class="mt-3 mb-3 p-2 border rounded shadow-sm bg-white" style="font-size: 0.9rem; max-height: 180px; overflow-y: auto;">';
 
     formFieldsCache.forEach(field => {
         const key = field.label;
@@ -202,7 +256,7 @@ function generateDetailsHtml(data) {
             html += `
                 <div class="d-flex justify-content-between mb-2 border-bottom pb-1">
                     <span class="text-muted"><i class="fa-solid fa-angle-left me-1" style="font-size: 0.7rem;"></i> ${key}:</span>
-                    <strong class="ms-2 text-start" style="max-width: 60%; word-wrap: break-word;">${data[key]}</strong>
+                    <strong class="ms-2 text-start" style="max-width: 60%; word-wrap: break-word; color: var(--text-main);">${data[key]}</strong>
                 </div>
             `;
         }
@@ -229,21 +283,50 @@ function loadDistributionCases() {
             return;
         }
 
+        let casesData = [];
         snapshot.forEach(doc => {
-            const data = doc.data();
+            casesData.push({ id: doc.id, data: doc.data() });
+        });
+        
+        casesData.sort((a, b) => {
+            const timeA = a.data.createdAt ? (a.data.createdAt.seconds || 0) : 0;
+            const timeB = b.data.createdAt ? (b.data.createdAt.seconds || 0) : 0;
+            return timeA - timeB; 
+        });
+
+        casesData.forEach(item => {
+            const docId = item.id;
+            const data = item.data;
             const primaryText = getPrimaryText(data);
             const detailsHtml = generateDetailsHtml(data);
+            
+            const submittedDays = calculateDaysPassed(data.createdAt);
+            const isDelayed = submittedDays >= 7;
+            
+            const cardClass = isDelayed ? "case-card border-top border-4 case-delayed-border" : "case-card border-top border-4 border-primary";
+            const warningBadge = isDelayed ? `<div class="case-delayed-badge fw-bold"><i class="fa-solid fa-triangle-exclamation ms-1"></i> ئەم کەیسە ${submittedDays} ڕۆژە نەنێردراوە!</div>` : '';
 
             list.innerHTML += `
                 <div class="col-md-6 col-lg-4">
-                    <div class="case-card border-top border-4 border-primary">
-                        <h6 class="fw-bold mb-0 text-primary"><i class="fa-solid fa-user-clock me-1"></i> ${primaryText}</h6>
+                    <div class="${cardClass}">
+                        ${warningBadge}
+                        <h6 class="fw-bold mb-3 text-primary"><i class="fa-solid fa-user-clock me-2"></i> ${primaryText}</h6>
+                        
+                        <div class="time-tracking-box">
+                            <div class="d-flex justify-content-between mb-2 pb-2">
+                                <span class="text-muted"><i class="fa-solid fa-pen-to-square me-1"></i> پڕکرایەوە:</span>
+                                <span class="text-dark" dir="ltr" style="font-size: 0.8rem; font-weight:500;">${formatDateTime(data.createdAt)}</span>
+                            </div>
+                            ${generateDaysTrackerHtml(submittedDays)}
+                        </div>
+                        
                         ${detailsHtml}
+                        
                         <div class="d-flex justify-content-between pt-2">
-                            <button class="btn btn-sm btn-outline-danger action-btn" onclick="deleteCase('${doc.id}')">
+                            <button class="btn btn-sm btn-outline-danger action-btn" onclick="deleteCase('${docId}')">
                                 <i class="fa-solid fa-trash"></i> سڕینەوە
                             </button>
-                            <button class="btn btn-sm btn-primary action-btn" onclick="sendToCategory('${doc.id}')">
+                            <button class="btn btn-sm btn-primary action-btn" onclick="sendToCategory('${docId}')">
                                 ناردن بۆ بەش <i class="fa-solid fa-share ms-1"></i>
                             </button>
                         </div>
@@ -284,7 +367,8 @@ async function sendToCategory(id) {
         await db.collection("aid_cases").doc(id).update({
             stage: 'category',
             categoryId: categoryId,
-            status: 'pending'
+            status: 'pending',
+            assignedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'نێردرا بۆ بەشەکە', showConfirmButton: false, timer: 1500 });
     }
@@ -311,27 +395,57 @@ function loadCategoryCases() {
                 return;
             }
 
+            let casesData = [];
             snapshot.forEach(doc => {
-                const data = doc.data();
+                casesData.push({ id: doc.id, data: doc.data() });
+            });
+            
+            casesData.sort((a, b) => {
+                const timeA = a.data.assignedAt ? (a.data.assignedAt.seconds || 0) : 0;
+                const timeB = b.data.assignedAt ? (b.data.assignedAt.seconds || 0) : 0;
+                return timeA - timeB; 
+            });
+
+            casesData.forEach(item => {
+                const docId = item.id;
+                const data = item.data;
                 const primaryText = getPrimaryText(data);
                 const detailsHtml = generateDetailsHtml(data);
+                
+                const timeToCalculate = data.assignedAt || data.createdAt; 
+                const assignedDays = calculateDaysPassed(timeToCalculate);
+                const isDelayed = assignedDays >= 7;
+                
+                const cardClass = isDelayed ? "case-card border-top border-4 case-delayed-border" : "case-card border-top border-4 border-warning";
+                const warningBadge = isDelayed ? `<div class="case-delayed-badge fw-bold"><i class="fa-solid fa-triangle-exclamation ms-1"></i> ئەم کەیسە ${assignedDays} ڕۆژە سەردانی نەکراوە!</div>` : '';
 
                 list.innerHTML += `
                 <div class="col-md-6 col-lg-6">
-                    <div class="case-card border-top border-4 border-warning">
-                        <h6 class="fw-bold mb-0"><i class="fa-solid fa-folder-open text-warning me-2"></i> ${primaryText}</h6>
+                    <div class="${cardClass}">
+                        ${warningBadge}
+                        <h6 class="fw-bold mb-3"><i class="fa-solid fa-folder-open text-warning me-2"></i> ${primaryText}</h6>
+                        
+                        <div class="time-tracking-box">
+                            <div class="d-flex justify-content-between mb-2 pb-2">
+                                <span class="text-muted"><i class="fa-solid fa-share-nodes me-1"></i> نێردراوە بۆ بەش:</span>
+                                <span class="text-dark" dir="ltr" style="font-size: 0.8rem; font-weight:500;">${formatDateTime(data.assignedAt || data.createdAt)}</span>
+                            </div>
+                            ${generateDaysTrackerHtml(assignedDays)}
+                        </div>
+                        
                         ${detailsHtml}
+                        
                         <div class="d-flex flex-wrap gap-2 pt-2 justify-content-center">
-                            <button class="btn btn-sm btn-success action-btn flex-grow-1" onclick="updateStatus('${doc.id}', 'سەردانی کراوان')">
+                            <button class="btn btn-sm btn-success action-btn flex-grow-1" onclick="updateStatus('${docId}', 'سەردانی کراوان')">
                                 <i class="fa-solid fa-check-double"></i> سەردانی کراوە
                             </button>
-                            <button class="btn btn-sm btn-danger action-btn flex-grow-1" onclick="updateStatus('${doc.id}', 'سەردانی نەکراوان')">
+                            <button class="btn btn-sm btn-danger action-btn flex-grow-1" onclick="updateStatus('${docId}', 'بەردەست نەبوو')">
                                 <i class="fa-solid fa-xmark"></i> بەردەست نەبوو
                             </button>
-                            <button class="btn btn-sm btn-secondary action-btn flex-grow-1" onclick="updateStatus('${doc.id}', 'پێویستی بە سەردان نەبوو')">
+                            <button class="btn btn-sm btn-secondary action-btn flex-grow-1" onclick="updateStatus('${docId}', 'پێویستی بە سەردان نەبوو')">
                                 <i class="fa-solid fa-ban"></i> پێویست نەبوو
                             </button>
-                            <button class="btn btn-sm btn-info action-btn flex-grow-1 text-white" onclick="updateStatus('${doc.id}', 'پێشتر سەردانی کراوە')">
+                            <button class="btn btn-sm btn-info action-btn flex-grow-1 text-white" onclick="updateStatus('${docId}', 'پێشتر سەردانی کراوە')">
                                 <i class="fa-solid fa-clock-rotate-left"></i> پێشتر کراوە
                             </button>
                         </div>

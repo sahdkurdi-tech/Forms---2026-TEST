@@ -36,24 +36,22 @@
            ========================================= */
         @media (max-width: 991px) {
             #page-content-wrapper {
-                padding-top: 100px !important; /* بۆشایی زیاتر بۆ خوارەوەی مینیۆکە */
+                padding-top: 100px !important; 
             }
 
-            /* ئەنیمەیشنی سوڕانەوەی ڕووناکییەکە */
             @keyframes spinLight {
                 0% { transform: rotate(0deg); }
                 100% { transform: rotate(360deg); }
             }
 
-            /* باکسی دەرەوەی مینیۆکە (جێگیرکراوە) */
             .modern-navbar {
                 background: transparent !important;
                 border: none !important;
                 box-shadow: none !important;
                 padding: 2px; 
                 border-radius: 52px;
-                position: fixed; /* ئەمە وا دەکات لەگەڵ سکڕۆڵ جێگیر بێت */
-                top: 15px; /* کەمێک بۆشایی لە سەرەوە */
+                position: fixed; 
+                top: 15px; 
                 left: 0;
                 right: 0;
                 margin-left: auto;
@@ -63,7 +61,6 @@
                 transition: border-radius 0.3s ease;
             }
 
-            /* دوو ڕووناکییە سپییەکە */
             .modern-navbar::before {
                 content: "";
                 position: absolute;
@@ -85,7 +82,6 @@
                 z-index: -1;
             }
 
-            /* بەشە سەرەکییەکەی ناوەوەی مینیۆکە */
             .navbar-inner-bg {
                 background: rgba(255, 255, 255, 0.95);
                 backdrop-filter: blur(15px);
@@ -106,14 +102,8 @@
                 box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
             }
 
-            /* کاتێک مینیۆکە دەکرێتەوە شێوەی دەگۆڕێت */
-            .modern-navbar.menu-open {
-                border-radius: 22px;
-            }
-            
-            .modern-navbar.menu-open .navbar-inner-bg {
-                border-radius: 20px;
-            }
+            .modern-navbar.menu-open { border-radius: 22px; }
+            .modern-navbar.menu-open .navbar-inner-bg { border-radius: 20px; }
 
             #navbarNav {
                 background: transparent;
@@ -125,17 +115,8 @@
                 width: 100%;
             }
 
-            /* ڕێکخستنی دوگمەکانی مینیۆی مۆبایل */
-            #navbarNav .navbar-nav {
-                width: 100%;
-                padding: 0 5px;
-            }
-
-            #navbarNav .nav-item {
-                width: 100%;
-                margin-bottom: 8px; 
-            }
-            
+            #navbarNav .navbar-nav { width: 100%; padding: 0 5px; }
+            #navbarNav .nav-item { width: 100%; margin-bottom: 8px; }
             #navbarNav .nav-link {
                 width: 100%; 
                 text-align: center;
@@ -149,19 +130,13 @@
                 border: 1px solid transparent;
             }
 
-            #navbarNav .nav-link:hover {
-                background-color: #f1f5f9;
-            }
-
+            #navbarNav .nav-link:hover { background-color: #f1f5f9; }
             #navbarNav .nav-link.active {
                 background-color: rgba(3, 182, 247, 0.1);
                 border-color: rgba(3, 182, 247, 0.2);
             }
 
-            body.dark-mode #navbarNav .nav-link {
-                background-color: #334155;
-            }
-
+            body.dark-mode #navbarNav .nav-link { background-color: #334155; }
             body.dark-mode #navbarNav .nav-link.active {
                 background-color: rgba(56, 189, 248, 0.15);
                 border-color: rgba(56, 189, 248, 0.3);
@@ -170,7 +145,7 @@
 
         /* ستایلی کارتەکانی ئەرشیف */
         .archive-card {
-            background: var(--card-bg);
+            background: var(--card-bg, #ffffff);
             border-radius: 12px;
             padding: 15px;
             margin-bottom: 15px;
@@ -178,10 +153,7 @@
             border: 1px solid #e2e8f0;
             position: relative;
             overflow: hidden;
-        }
-
-        body.dark-mode .archive-card {
-            border-color: #334155;
+            transition: all 0.3s ease;
         }
 
         .status-badge {
@@ -195,70 +167,115 @@
         }
 
         /* ڕەنگی باجەکان */
-        .badge-success {
-            background: rgba(25, 135, 84, 0.1);
-            color: #198754;
-            border: 1px solid #198754;
+        .badge-success { background: rgba(25, 135, 84, 0.1); color: #198754; border: 1px solid #198754; }
+        .badge-danger { background: rgba(220, 53, 69, 0.1); color: #dc3545; border: 1px solid #dc3545; }
+        .badge-secondary { background: rgba(108, 117, 125, 0.1); color: #6c757d; border: 1px solid #6c757d; }
+        .badge-info { background: rgba(13, 202, 240, 0.1); color: #0dcaf0; border: 1px solid #0dcaf0; }
+
+        body.dark-mode .badge-success { color: #4ade80; border-color: #4ade80; background: rgba(74, 222, 128, 0.15);}
+        body.dark-mode .badge-danger { color: #f87171; border-color: #f87171; background: rgba(248, 113, 113, 0.15);}
+        body.dark-mode .badge-info { color: #38bdf8; border-color: #38bdf8; background: rgba(56, 189, 248, 0.15);}
+        body.dark-mode .badge-secondary { color: #cbd5e1; border-color: #cbd5e1; background: rgba(203, 213, 225, 0.15);}
+
+        /* =========================================
+           دیزاینی کات و ئاگادارییە نوێیەکان
+           ========================================= */
+        .time-tracking-box {
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
-        .badge-danger {
-            background: rgba(220, 53, 69, 0.1);
-            color: #dc3545;
-            border: 1px solid #dc3545;
+        .case-delayed-border {
+            border: 2px solid #ef4444 !important;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.1) !important;
         }
 
-        .badge-secondary {
-            background: rgba(108, 117, 125, 0.1);
-            color: #6c757d;
-            border: 1px solid #6c757d;
+        .case-delayed-badge {
+            background-color: #ef4444;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+            display: inline-block;
+            width: 100%;
+            text-align: center;
         }
 
-        .badge-info {
-            background: rgba(13, 202, 240, 0.1);
-            color: #0dcaf0;
-            border: 1px solid #0dcaf0;
+        /* =========================================
+           پشتگیری تەواوەتی دۆخی تاریک (Dark Mode)
+           ========================================= */
+        body.dark-mode .archive-card {
+            background-color: #1e293b !important;
+            border-color: #334155 !important;
+            color: #f1f5f9 !important;
         }
 
-        body.dark-mode .badge-success {
-            color: #4ade80;
-            border-color: #4ade80;
+        body.dark-mode .archive-card h6 {
+            color: #f1f5f9 !important;
         }
 
-        body.dark-mode .badge-danger {
-            color: #f87171;
-            border-color: #f87171;
+        body.dark-mode .archive-card .text-dark {
+            color: #f1f5f9 !important;
         }
 
-        body.dark-mode .badge-info {
-            color: #38bdf8;
-            border-color: #38bdf8;
+        body.dark-mode .archive-card .bg-light {
+            background-color: #0f172a !important;
+            border-color: #334155 !important;
+        }
+
+        body.dark-mode .archive-card .border-bottom,
+        body.dark-mode .archive-card .border-top {
+            border-color: #334155 !important;
+        }
+
+        body.dark-mode .time-tracking-box {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        /* دۆخی تاریک بۆ بەشی فلتەرەکان */
+        body.dark-mode .modern-card {
+            background-color: #1e293b !important;
+            border-color: #334155 !important;
+        }
+
+        body.dark-mode .form-control,
+        body.dark-mode .form-select,
+        body.dark-mode .input-group-text {
+            background-color: #0f172a !important;
+            border-color: #334155 !important;
+            color: #f1f5f9 !important;
+        }
+
+        body.dark-mode .form-control::placeholder {
+            color: #64748b !important;
+        }
+
+        body.dark-mode .form-control:focus,
+        body.dark-mode .form-select:focus {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 0 0.25rem rgba(56, 189, 248, 0.25) !important;
         }
 
         /* =========================================
            گۆڕینی ڕەنگی ڕووناکی مینیۆکە
            ========================================= */
         @media (max-width: 991px) {
-            /* ڕەنگی شینی لۆگۆکە بۆ دۆخی ئاسایی (ڕووناک) */
             .modern-navbar::before {
                 background: conic-gradient(
-                    transparent 0%, 
-                    transparent 40%, 
-                    #03b6f7 50%, /* ڕەنگی لۆگۆ */
-                    transparent 60%, 
-                    transparent 90%, 
-                    #03b6f7 100% /* ڕەنگی لۆگۆ */
+                    transparent 0%, transparent 40%, #03b6f7 50%, 
+                    transparent 60%, transparent 90%, #03b6f7 100% 
                 ) !important;
             }
-
-            /* ڕەنگی سپی بۆ دۆخی تاریک (بۆ ئەوەی زەق بێت) */
             body.dark-mode .modern-navbar::before {
                 background: conic-gradient(
-                    transparent 0%, 
-                    transparent 40%, 
-                    #ffffff 50%, /* ڕەنگی سپی */
-                    transparent 60%, 
-                    transparent 90%, 
-                    #ffffff 100% /* ڕەنگی سپی */
+                    transparent 0%, transparent 40%, #ffffff 50%, 
+                    transparent 60%, transparent 90%, #ffffff 100% 
                 ) !important;
             }
         }
@@ -269,9 +286,9 @@
 
     <nav class="navbar modern-navbar mx-auto d-lg-none" style="max-width: 92%;">
         <div class="navbar-inner-bg">
-<a class="navbar-brand d-flex align-items-center m-0" href="index.html">
-    <img src="logo3.png" alt="MROVDOSTAN" height="38" style="object-fit: contain;">
-</a>
+            <a class="navbar-brand d-flex align-items-center m-0" href="index.html">
+                <img src="logo3.png" alt="MROVDOSTAN" height="38" style="object-fit: contain;">
+            </a>
             <button class="navbar-toggler border-0 shadow-none p-0" type="button" id="mobileMenuToggler">
                 <i class="fa-solid fa-bars-staggered fa-lg text-primary"></i>
             </button>
@@ -335,8 +352,12 @@
                     <i class="fa-solid fa-house"></i> <span>سەرەکی</span>
                 </a>
 
-                <a href="aid-board.html" class="mobile-nav-item active">
+                <a href="aid-board.html" class="mobile-nav-item">
                     <i class="fa-solid fa-hand-holding-heart"></i> <span>کەیسی نوێ</span>
+                </a>
+                
+                <a href="aid-archive.html" class="mobile-nav-item active text-warning">
+                    <i class="fa-solid fa-box-archive"></i> <span>ئەرشیف</span>
                 </a>
 
                 <a href="settings.html" class="mobile-nav-item d-none" id="navSettingsSidebar">
@@ -359,40 +380,51 @@
                 <div class="container-fluid px-0 d-flex justify-content-between align-items-center">
                     <h4 class="fw-bold m-0 text-primary"><i class="fa-solid fa-box-archive me-2"></i> ئەرشیفی کەیسەکان
                     </h4>
-                    <a href="aid-board.html" class="btn btn-outline-secondary">
-                        <i class="fa-solid fa-arrow-right"></i> گەڕانەوە بۆ دابەشکردن
+                    <a href="aid-board.html" class="btn btn-outline-secondary rounded-pill">
+                        <i class="fa-solid fa-arrow-right"></i> گەڕانەوە بۆ تەختە
                     </a>
                 </div>
             </nav>
 
             <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3 d-lg-none">
                 <h4 class="fw-bold m-0 text-primary fs-5"><i class="fa-solid fa-box-archive me-2"></i> ئەرشیف</h4>
-                <a href="aid-board.html" class="btn btn-sm btn-outline-secondary">
+                <a href="aid-board.html" class="btn btn-sm btn-outline-secondary rounded-pill">
                     <i class="fa-solid fa-arrow-right"></i> گەڕانەوە
                 </a>
             </div>
 
-            <div class="modern-card p-3 mb-4">
-                <div class="row align-items-center">
+            <div class="modern-card p-3 mb-4 rounded-4 shadow-sm border">
+                <div class="row g-3 align-items-center">
                     <div class="col-md-4">
-                        <label class="form-label fw-bold text-muted small mb-1">فلتەرکردن بەپێی باری کەیس</label>
-                        <select id="statusFilter" class="form-select" onchange="renderArchive()">
-                            <option value="all">پیشاندانی هەمووی</option>
+                        <label class="form-label fw-bold text-muted small mb-1">گەڕانی زیرەک</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                            <input type="text" id="searchInput" class="form-control" placeholder="ناو، مۆبایل، ناونیشان...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-muted small mb-1">فلتەری بەشەکان</label>
+                        <select id="categoryFilter" class="form-select">
+                            <option value="">هەموو بەشەکان</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-muted small mb-1">فلتەری بڕیار</label>
+                        <select id="statusFilter" class="form-select">
+                            <option value="">هەموو بڕیارەکان</option>
                             <option value="سەردانی کراوان">سەردانی کراوان</option>
-                            <option value="سەردانی نەکراوان">سەردانی نەکراوان</option>
+                            <option value="بەردەست نەبوو">بەردەست نەبوو</option>
                             <option value="پێویستی بە سەردان نەبوو">پێویستی بە سەردان نەبوو</option>
                             <option value="پێشتر سەردانی کراوە">پێشتر سەردانی کراوە</option>
                         </select>
                     </div>
-                    <div class="col-md-4 mt-3 mt-md-0">
-                        <div class="text-md-center">
-                            <span class="badge bg-primary fs-6" id="totalCount">کۆی گشتی: 0</span>
-                        </div>
+                    <div class="col-md-2 mt-4 text-center">
+                        <span class="badge bg-primary fs-6 w-100 py-2 rounded-pill" id="totalCount">کۆی گشتی: 0</span>
                     </div>
                 </div>
             </div>
 
-            <div class="row" id="archiveList">
+            <div class="row" id="archivedCasesList">
                 <div class="text-center text-muted mt-5 w-100"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>
             </div>
 
@@ -406,7 +438,6 @@
     <script src="js/aid-archive.js"></script>
 
     <script>
-        // فەنکشنی پیشاندانی نامەی (بەم زووانە) بۆ دوگمەی پڕۆفایل
         function showComingSoonAlert(e) {
             e.preventDefault(); 
             Swal.fire({
@@ -418,7 +449,6 @@
             });
         }
 
-        // کۆدی تایبەت بە کارپێکردنی دوگمەی دۆخی تاریک
         function updateDarkIcons(iconClass) {
             document.querySelectorAll('.dark-mode-icon').forEach(icon => {
                 icon.classList.remove('fa-moon', 'fa-sun');
@@ -441,7 +471,6 @@
             });
         });
 
-        // گونجاندنی ئایکۆن لەکاتی کردنەوەی پەڕەکە
         if (localStorage.getItem('theme') === 'dark' || document.body.classList.contains('dark-mode')) {
             updateDarkIcons('fa-sun');
         }
@@ -456,7 +485,6 @@
                     e.preventDefault();
                     e.stopPropagation();
                     navMenu.classList.toggle('show');
-                    // کاتێک مینیۆکە دەکرێتەوە ئەم کڵاسەی بۆ زیاد دەبێت بۆ گۆڕینی قەبارەی ڕووناکییەکە
                     navbar.classList.toggle('menu-open');
                 });
 
