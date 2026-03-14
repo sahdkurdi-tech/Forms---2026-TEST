@@ -14,8 +14,54 @@ const titleEl = document.getElementById('formTitleDisplay');
 const STORAGE_KEY = `autosave_data_${formId}`;
 
 // گوێگرتن لە هەر گۆڕانکارییەک (نووسین یان هەڵبژاردن)
+// --- فەنکشنی نوێ بۆ گۆڕینی ژمارەی کوردی و عەرەبی بە ئینگلیزی ---
+window.convertAllNumerals = function(input) {
+    if (!input || input.type === 'date' || input.type === 'checkbox' || input.type === 'radio' || input.type === 'file') return;
+
+    const numbers = {
+        '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
+        '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9',
+        '۰': '0', '۱': '1', '۲': '2', '۳': '3', '۴': '4',
+        '۵': '5', '۶': '6', '۷': '7', '۸': '8', '۹': '9'
+    };
+    
+    let val = input.value;
+    if (!val) return;
+
+    let converted = val.replace(/[٠-٩۰-۹]/g, function(match) {
+        return numbers[match];
+    });
+    
+    if (input.getAttribute('inputmode') === 'numeric' || input.type === 'number') {
+        converted = converted.replace(/[^0-9.]/g, ''); 
+    }
+    
+    if (val !== converted) {
+        let start = input.selectionStart;
+        let end = input.selectionEnd;
+        input.value = converted;
+        try {
+            input.setSelectionRange(start, end);
+        } catch(e) {}
+    }
+};
+
+// --- چارەسەری کێشەی بلۆکبوونی کیبۆردی کوردی لە خانەی ژمارەکان ---
+document.addEventListener('focusin', function(e) {
+    if (e.target && e.target.tagName === 'INPUT' && e.target.type === 'number') {
+        e.target.type = 'text'; // دەیگۆڕین بۆ تێکست بۆ ئەوەی ڕێگە بە ژمارەی کوردی بدات
+        e.target.setAttribute('inputmode', 'numeric'); // بۆ ئەوەی لە مۆبایل هەر کیبۆردی ژمارەکان بکرێتەوە
+    }
+});
+
+// گوێگرتن لە هەر گۆڕانکارییەک (نووسین یان هەڵبژاردن)
 if(formEl) {
-    formEl.addEventListener('input', handleAutoSave);
+    formEl.addEventListener('input', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+            convertAllNumerals(e.target);
+        }
+        handleAutoSave(e); 
+    });
     formEl.addEventListener('change', handleAutoSave);
 }
 

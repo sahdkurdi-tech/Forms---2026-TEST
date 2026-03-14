@@ -383,8 +383,42 @@ function setupHeaders() {
 }
 
 // ============================================================
+// ============================================================
 // 3. EDIT MODAL
 // ============================================================
+
+// --- فەنکشنی نوێ بۆ گۆڕینی ژمارەی کوردی/عەرەبی بە ئینگلیزی ---
+window.convertAllNumerals = function(input) {
+    if (!input || input.type === 'date' || input.type === 'checkbox' || input.type === 'radio' || input.type === 'file') return;
+
+    const numbers = {
+        '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
+        '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9',
+        '۰': '0', '۱': '1', '۲': '2', '۳': '3', '۴': '4',
+        '۵': '5', '۶': '6', '۷': '7', '۸': '8', '۹': '9'
+    };
+    
+    let val = input.value;
+    if (!val) return;
+
+    let converted = val.replace(/[٠-٩۰-۹]/g, function(match) {
+        return numbers[match];
+    });
+    
+    if (input.getAttribute('inputmode') === 'numeric' || input.type === 'number') {
+        converted = converted.replace(/[^0-9.]/g, ''); 
+    }
+    
+    if (val !== converted) {
+        let start = input.selectionStart;
+        let end = input.selectionEnd;
+        input.value = converted;
+        try {
+            input.setSelectionRange(start, end);
+        } catch(e) {}
+    }
+};
+
 function openEditModal(docId) {
     const data = allSubmissions.find(d => d.id === docId);
     if (!data) return;
@@ -532,12 +566,31 @@ function renderEditFieldsRecursive(fields, currentData, container) {
             inputEl = document.createElement('textarea');
             inputEl.className = 'form-control';
             inputEl.rows = 3; inputEl.name = f.id; inputEl.value = currentVal; 
+            inputEl.oninput = function() { window.convertAllNumerals(this); }; // <--- بۆ گۆڕینی ژمارە زیادکرا
+            fieldWrapper.appendChild(inputEl);
+        } else if(f.type === 'date') {
+            inputEl = document.createElement('input');
+            inputEl.type = 'date';
+            inputEl.className = 'form-control';
+            inputEl.name = f.id; 
+            if(currentVal && currentVal.includes('/')) {
+                let parts = currentVal.split('/');
+                if(parts.length === 3) inputEl.value = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+            } else {
+                inputEl.value = currentVal;
+            }
             fieldWrapper.appendChild(inputEl);
         } else {
             inputEl = document.createElement('input');
-            inputEl.type = f.type === 'number' ? 'number' : 'text';
+            if (f.type === 'number') {
+                inputEl.type = 'text'; // <--- بۆ کارکردنی کیبۆردی کوردی
+                inputEl.setAttribute('inputmode', 'numeric');
+            } else {
+                inputEl.type = 'text';
+            }
             inputEl.className = 'form-control';
             inputEl.name = f.id; inputEl.value = currentVal; 
+            inputEl.oninput = function() { window.convertAllNumerals(this); }; // <--- بۆ گۆڕینی ژمارە زیادکرا
             fieldWrapper.appendChild(inputEl);
         }
         container.appendChild(fieldWrapper);
