@@ -425,19 +425,20 @@
 
                 <div class="tab-pane fade show active" id="content-categories" role="tabpanel">
                     <div class="row">
-                        <div class="col-lg-6 mx-auto">
+                        <div class="col-lg-8 mx-auto">
                             <div class="modern-card p-4">
                                 <h5 class="fw-bold mb-3"><i class="fa-solid fa-layer-group text-primary me-2"></i> جۆری
                                     بەشەکان</h5>
-                                <p class="text-muted small">ئەو بەشانە زیاد بکە کە کەیسەکانی بۆ دابەش دەکرێت، لەگەڵ ڕەنگێک بۆ جیاکردنەوەیان.</p>
-                                <div class="input-group mb-3">
+                                <p class="text-muted small">ئەو بەشانە زیاد بکە کە کەیسەکانی بۆ دابەش دەکرێت، لەگەڵ ڕەنگێک بۆ جیاکردنەوەیان. دەتوانیت بە ڕاکێشان ڕیزبەندییان بگۆڕیت.</p>
+                                <div class="input-group mb-4">
                                     <input type="color" id="catColor" class="form-control form-control-color px-1 border-end-0" value="#03b6f7" title="ڕەنگی بەش هەڵبژێرە" style="max-width: 50px;">
                                     <input type="text" id="catName" class="form-control"
                                         placeholder="ناوی بەشەکە بنووسە... (نموونە: بەشی بێ باوکان)">
-                                    <button class="btn btn-primary" onclick="addCategory()"><i
-                                            class="fa-solid fa-plus"></i> زیادکردن</button>
+                                    <button class="btn btn-primary px-4" onclick="addCategory()">
+                                        <i class="fa-solid fa-plus"></i> زیادکردن
+                                    </button>
                                 </div>
-                                <ul class="list-group mt-3" id="categoriesList"></ul>
+                                <div class="row g-3" id="categoriesListContainer"></div>
                             </div>
                         </div>
                     </div>
@@ -471,6 +472,9 @@
                                         <div class="toolbox-item border-primary" data-type="select_one"><i
                                                 class="fa-regular fa-caret-square-down text-danger"></i> هەڵبژاردن (بۆ
                                             لقەکان)</div>
+                                        <div class="toolbox-item border-primary" data-type="select_multiple"><i
+                                                class="fa-solid fa-list-check text-secondary"></i> فرە هەڵبژاردن (Checkbox)
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -487,6 +491,34 @@
                     </div>
                 </div>
 
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="optionsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-list-check text-primary me-2"></i> ڕێکخستنی هەڵبژاردنەکان</h5>
+                    <button type="button" class="btn-close m-0 p-0 fs-5" data-bs-dismiss="modal" aria-label="Close" style="margin-right: auto !important; margin-left: 0 !important;"></button>
+                </div>
+                <div class="modal-body bg-light">
+                    <label class="form-label fw-bold">هەڵبژاردنی نوێ:</label>
+                    <div class="input-group mb-4 shadow-sm">
+                        <input type="text" id="newOptionInput" class="form-control" placeholder="هەڵبژاردنەکە بنووسە و Enter بکە">
+                        <button class="btn btn-primary px-4" type="button" onclick="addOptionToUI()">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                    
+                    <label class="form-label fw-bold mb-2">لیستی هەڵبژاردنەکان (دەتوانیت ڕیزبەندییان بگۆڕیت):</label>
+                    <ul id="optionsListUI" class="list-group list-group-flush border rounded shadow-sm bg-white" style="min-height: 80px;">
+                        </ul>
+                </div>
+                <div class="modal-footer border-top">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">داخستن</button>
+                    <button type="button" class="btn btn-success px-4" onclick="saveOptionsToField()"><i class="fa-solid fa-check me-2"></i> جێگیرکردن</button>
+                </div>
             </div>
         </div>
     </div>

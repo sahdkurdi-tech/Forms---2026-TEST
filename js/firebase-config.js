@@ -5,12 +5,13 @@ const imgbbAPIKey = "6af58315becc401b1652235b9dcbe9c9";
 
 // ٢. زانیارییەکانی Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyBS7-fWFagKFtMHGyshAA5edj-BefFMcO8",
-  authDomain: "forms---2026-test-ed964.firebaseapp.com",
-  projectId: "forms---2026-test-ed964",
-  storageBucket: "forms---2026-test-ed964.firebasestorage.app",
-  messagingSenderId: "287228770317",
-  appId: "1:287228770317:web:5dd90b1718c47abb6ebd44"
+  apiKey: "AIzaSyA4lbQFKrYLnLT4uwnYbLR2b66cSTEzKY4",
+  authDomain: "forms---2026-test-93616.firebaseapp.com",
+  projectId: "forms---2026-test-93616",
+  storageBucket: "forms---2026-test-93616.firebasestorage.app",
+  messagingSenderId: "934643278",
+  appId: "1:934643278:web:234b18d44e2fd971ed651f",
+  measurementId: "G-ZCLHLQ5KD0"
 };
 
 // پەیوەستبوون (Initialize)

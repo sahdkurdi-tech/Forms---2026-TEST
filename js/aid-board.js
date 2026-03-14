@@ -5,10 +5,43 @@ let categoriesCache = [];
 let isBoardInitialized = false;
 let currentUserPerms = {};
 
-// گۆڕاوێک بۆ وەستاندنی گوێگری کەیسەکانی ناو بەشێک
 let currentCategoryListener = null;
 
-// --- فەنکشنە نوێیەکان بۆ کات و ڕێکەوت ---
+// گۆڕاوی نوێ بۆ هەڵگرتنی ژمارەی کەیسەکانی هەر بەشێک
+let categoryCountsMap = {};
+
+// گۆڕاوی نوێ بۆ هەڵگرتنی کەیسەکانی ناو بەشێک بە مەبەستی گەڕان تێیاندا
+let currentCategoryCases = [];
+
+window.convertAllNumerals = function(input) {
+    if (input.type === 'date' || input.type === 'checkbox' || input.type === 'radio') return;
+
+    const numbers = {
+        '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
+        '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9',
+        '۰': '0', '۱': '1', '۲': '2', '۳': '3', '۴': '4',
+        '۵': '5', '۶': '6', '۷': '7', '۸': '8', '۹': '9'
+    };
+    
+    let val = input.value;
+    let converted = val.replace(/[٠-٩۰-۹]/g, function(match) {
+        return numbers[match];
+    });
+    
+    if (input.getAttribute('inputmode') === 'numeric') {
+        converted = converted.replace(/[^0-9.]/g, ''); 
+    }
+    
+    if (val !== converted) {
+        let start = input.selectionStart;
+        let end = input.selectionEnd;
+        input.value = converted;
+        try {
+            input.setSelectionRange(start, end);
+        } catch(e) {}
+    }
+};
+
 function formatDateTime(timestamp) {
     if (!timestamp) return '<span class="text-danger opacity-50">نەزانراو</span>';
     const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
@@ -59,7 +92,6 @@ function generateDaysTrackerHtml(daysPassed) {
         </div>
     `;
 }
-// ----------------------------------------
 
 firebase.auth().onAuthStateChanged(async (user) => {
     if (user) {
@@ -113,6 +145,7 @@ function initBoard() {
         }
 
         if (!isBoardInitialized) {
+            startCategoryCountsListener(); 
             loadCategories();
             if (currentUserPerms.role === 'owner' || currentUserPerms.canDistribute) {
                 loadDistributionCases();
@@ -121,6 +154,43 @@ function initBoard() {
         } else {
             if (currentUserPerms.role === 'owner' || currentUserPerms.canDistribute) {
                 loadDistributionCases();
+            }
+        }
+    });
+}
+
+function startCategoryCountsListener() {
+    db.collection("aid_cases")
+        .where("stage", "==", "category")
+        .where("status", "==", "pending")
+        .onSnapshot(snapshot => {
+            categoryCountsMap = {}; 
+            snapshot.forEach(doc => {
+                let catId = doc.data().categoryId;
+                if(catId) {
+                    categoryCountsMap[catId] = (categoryCountsMap[catId] || 0) + 1;
+                }
+            });
+            updateCategoryCountsUI();
+        });
+}
+
+function updateCategoryCountsUI() {
+    categoriesCache.forEach(cat => {
+        let el = document.getElementById('countText-' + cat.id);
+        if (el) {
+            let count = categoryCountsMap[cat.id] || 0;
+            
+            if (count > 0) {
+                el.className = "mt-3 badge bg-danger text-white border-0 p-2 w-75 rounded-pill shadow-sm fw-bold";
+                // لێرەدا ڕاستەوخۆ count بەکاردێنین بۆ ئەوەی بە ئینگلیزی بێت
+                el.innerHTML = `<i class="fa-solid fa-file-circle-exclamation me-1"></i> ${count} کەیس هەیە`;
+            } else {
+                el.className = "mt-3 badge bg-light text-secondary border p-2 w-75 rounded-pill fw-bold";
+                if(document.body.classList.contains('dark-mode')) {
+                    el.classList.replace('bg-light', 'bg-dark');
+                }
+                el.innerHTML = `<i class="fa-solid fa-check-double me-1"></i> هیچ نییە`;
             }
         }
     });
@@ -146,7 +216,7 @@ function renderFieldsTree(fields, container, isHidden = false) {
 
         let inputHtml = '';
         if (field.type === 'textarea') {
-            inputHtml = `<textarea class="form-control" name="${field.id}" data-label="${field.label}" rows="3" ${!isHidden ? 'required' : ''}></textarea>`;
+            inputHtml = `<textarea class="form-control" name="${field.id}" data-label="${field.label}" rows="3" oninput="convertAllNumerals(this)" ${!isHidden ? 'required' : ''}></textarea>`;
         } else if (field.type === 'select_one') {
             let optionsHtml = '<option value="">هەڵبژێرە...</option>';
             if (field.options) {
@@ -155,9 +225,26 @@ function renderFieldsTree(fields, container, isHidden = false) {
                 });
             }
             inputHtml = `<select class="form-select" name="${field.id}" data-label="${field.label}" ${!isHidden ? 'required' : ''}>${optionsHtml}</select>`;
+        } else if (field.type === 'select_multiple') {
+            let optionsHtml = '<div class="d-flex flex-wrap gap-3 mt-2">';
+            if (field.options) {
+                field.options.forEach((opt, index) => {
+                    const uniqueId = `cb_${field.id}_${index}`;
+                    optionsHtml += `
+                        <div class="form-check custom-checkbox">
+                            <input class="form-check-input select-multiple-input" type="checkbox" name="${field.id}" value="${opt}" id="${uniqueId}" data-label="${field.label}">
+                            <label class="form-check-label" for="${uniqueId}">${opt}</label>
+                        </div>
+                    `;
+                });
+            }
+            optionsHtml += '</div>';
+            inputHtml = optionsHtml;
+        } else if (field.type === 'number') {
+            inputHtml = `<input type="text" inputmode="numeric" class="form-control" name="${field.id}" data-label="${field.label}" oninput="convertAllNumerals(this)" ${!isHidden ? 'required' : ''}>`;
         } else {
-            let inputType = field.type === 'date' ? 'date' : (field.type === 'number' ? 'number' : 'text');
-            inputHtml = `<input type="${inputType}" class="form-control" name="${field.id}" data-label="${field.label}" ${!isHidden ? 'required' : ''}>`;
+            let inputType = field.type === 'date' ? 'date' : 'text';
+            inputHtml = `<input type="${inputType}" class="form-control" name="${field.id}" data-label="${field.label}" oninput="convertAllNumerals(this)" ${!isHidden ? 'required' : ''}>`;
         }
 
         div.innerHTML = `<label class="form-label fw-bold ${isHidden ? 'text-info' : ''}">${field.label}</label>${inputHtml}`;
@@ -172,12 +259,15 @@ function renderFieldsTree(fields, container, isHidden = false) {
                     selectEl.addEventListener('change', (e) => {
                         if (e.target.value !== "") {
                             childContainer.style.display = 'block';
-                            childContainer.querySelectorAll('input, select, textarea').forEach(el => el.required = true);
+                            childContainer.querySelectorAll('input, select, textarea').forEach(el => {
+                                if(el.type !== 'checkbox') el.required = true;
+                            });
                         } else {
                             childContainer.style.display = 'none';
                             childContainer.querySelectorAll('input, select, textarea').forEach(el => {
                                 el.required = false;
-                                el.value = '';
+                                if(el.type === 'checkbox') el.checked = false;
+                                else el.value = '';
                             });
                         }
                     });
@@ -194,12 +284,26 @@ document.getElementById('newCaseForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     let caseData = {};
 
-    const inputs = e.target.querySelectorAll('input, select, textarea');
+    const inputs = e.target.querySelectorAll('input:not([type="checkbox"]), select, textarea');
     inputs.forEach(input => {
         if (input.offsetParent !== null && input.name) {
             caseData[input.getAttribute('data-label')] = input.value;
         }
     });
+
+    const checkboxes = Array.from(e.target.querySelectorAll('input[type="checkbox"]:checked'));
+    if (checkboxes.length > 0) {
+        const groupedCheckboxes = checkboxes.reduce((acc, cb) => {
+            const label = cb.getAttribute('data-label');
+            if (!acc[label]) acc[label] = [];
+            acc[label].push(cb.value);
+            return acc;
+        }, {});
+
+        for (const label in groupedCheckboxes) {
+            caseData[label] = groupedCheckboxes[label].join('، '); 
+        }
+    }
 
     caseData.stage = 'distribution';
     caseData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
@@ -231,55 +335,86 @@ document.getElementById('newCaseForm').addEventListener('submit', async (e) => {
     }
 });
 
-// ==========================================
-// فەنکشنەکانی تایبەت بە بەشەکان (Two-View System بە ڕەنگەوە)
-// ==========================================
-
 function loadCategories() {
-    db.collection("aid_categories").orderBy("createdAt", "asc").onSnapshot(snapshot => {
+    db.collection("aid_categories").onSnapshot(snapshot => {
         categoriesCache = [];
         
         const listContainer = document.getElementById('categories-list-container');
         if (!listContainer) return;
         
+        let cats = [];
+        snapshot.forEach(doc => {
+            cats.push({ id: doc.id, ...doc.data() });
+        });
+
+        cats.sort((a, b) => {
+            let orderA = (a.order !== undefined) ? a.order : 9999;
+            let orderB = (b.order !== undefined) ? b.order : 9999;
+            if(orderA === orderB) {
+                let timeA = a.createdAt ? a.createdAt.seconds : 0;
+                let timeB = b.createdAt ? b.createdAt.seconds : 0;
+                return timeA - timeB;
+            }
+            return orderA - orderB;
+        });
+
         listContainer.innerHTML = '';
 
-        if (snapshot.empty) {
+        if (cats.length === 0) {
             listContainer.innerHTML = '<div class="col-12 text-center text-muted mt-4">هیچ بەشێک نییە. تکایە لە سێتینگ دروستی بکە.</div>';
             return;
         }
 
-        snapshot.forEach(doc => {
-            const data = { id: doc.id, ...doc.data() };
+        cats.forEach(data => {
             categoriesCache.push(data);
             
-            // وەرگرتنی ڕەنگەکە، ئەگەر نەبوو شین دادەنێت
             const catColor = data.color || '#03b6f7';
             
-            // دروستکردنی کارتی بەشەکە بە ڕەنگەکەی خۆیەوە
             listContainer.innerHTML += `
                 <div class="col-md-4 col-lg-3">
-                    <div class="card shadow-sm text-center h-100" style="cursor: pointer; transition: 0.3s; background-color: var(--card-bg, #fff); border: 2px solid ${catColor} !important;" onclick="openCategory('${data.id}', '${data.name}')" onmouseover="this.classList.add('shadow')" onmouseout="this.classList.remove('shadow')">
+                    <div class="card shadow-sm text-center h-100 position-relative" style="cursor: pointer; transition: 0.3s; background-color: var(--card-bg, #fff); border: 2px solid ${catColor} !important;" onclick="openCategory('${data.id}', '${data.name}')" onmouseover="this.classList.add('shadow')" onmouseout="this.classList.remove('shadow')">
                         <div class="card-body d-flex flex-column justify-content-center align-items-center py-4">
                             <div class="rounded-circle p-3 mb-3 d-flex align-items-center justify-content-center" style="width: 70px; height: 70px; background-color: ${catColor}15;">
                                 <i class="fa-solid fa-folder-open" style="font-size: 2rem; color: ${catColor};"></i>
                             </div>
                             <h5 class="card-title fw-bold m-0" style="color: ${catColor};">${data.name}</h5>
+                            
+                            <div class="mt-3 badge bg-light text-muted border p-2 w-75 rounded-pill" id="countText-${data.id}" style="font-size: 0.85rem;">
+                                <i class="fa-solid fa-spinner fa-spin"></i>
+                            </div>
+
                         </div>
                     </div>
                 </div>
             `;
         });
+        
+        updateCategoryCountsUI();
     });
 }
 
 function openCategory(categoryId, categoryName) {
-    // گۆڕینی دیمەنەکان
     document.getElementById('categories-view').classList.add('d-none');
     document.getElementById('cases-view').classList.remove('d-none');
     document.getElementById('current-category-title').innerText = categoryName;
 
-    // وەستاندنی گوێگری پێشوو ئەگەر هەبێت
+    // --- دروستکردنی خانەی گەڕان ئەگەر پێشتر نەبوو ---
+    let searchBoxContainer = document.getElementById('categorySearchContainer');
+    if (!searchBoxContainer) {
+        const listContainer = document.getElementById('category-cases-container');
+        const searchHtml = `
+            <div id="categorySearchContainer" class="col-12 mb-4">
+                <div class="input-group shadow-sm border rounded-pill overflow-hidden" style="background-color: var(--card-bg, #fff);">
+                    <span class="input-group-text text-primary border-0 ms-2" style="background: transparent;"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" id="categorySearchBox" class="form-control border-0 shadow-none" style="background: transparent; color: inherit;" placeholder="گەڕان لەناو ئەم بەشە (ناو، تەلەفۆن، تێبینی...)" oninput="filterCategoryCases(this.value)">
+                </div>
+            </div>
+        `;
+        listContainer.insertAdjacentHTML('beforebegin', searchHtml);
+    } else {
+        document.getElementById('categorySearchBox').value = ''; 
+    }
+
     if (currentCategoryListener) {
         currentCategoryListener();
     }
@@ -287,95 +422,136 @@ function openCategory(categoryId, categoryName) {
     const list = document.getElementById('category-cases-container');
     list.innerHTML = '<div class="text-center text-muted w-100 mt-5"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>';
 
-    // وەرگرتنی کەیسەکانی ئەم بەشە دیاریکراوە
     currentCategoryListener = db.collection("aid_cases")
         .where("stage", "==", "category")
         .where("categoryId", "==", categoryId)
         .where("status", "==", "pending")
         .onSnapshot(snapshot => {
-            list.innerHTML = '';
-
+            currentCategoryCases = [];
+            
             if (snapshot.empty) {
                 list.innerHTML = '<div class="col-12 text-center text-muted mt-4">هیچ کەیسێکی نوێ لەم بەشەدا نییە</div>';
                 return;
             }
 
-            let casesData = [];
             snapshot.forEach(doc => {
-                casesData.push({ id: doc.id, data: doc.data() });
+                currentCategoryCases.push({ id: doc.id, data: doc.data() });
             });
             
-            casesData.sort((a, b) => {
+            currentCategoryCases.sort((a, b) => {
                 const timeA = a.data.assignedAt ? (a.data.assignedAt.seconds || 0) : 0;
                 const timeB = b.data.assignedAt ? (b.data.assignedAt.seconds || 0) : 0;
                 return timeA - timeB; 
             });
 
-            casesData.forEach(item => {
-                const docId = item.id;
-                const data = item.data;
-                const primaryText = getPrimaryText(data);
-                const detailsHtml = generateDetailsHtml(data);
-                
-                const timeToCalculate = data.assignedAt || data.createdAt; 
-                const assignedDays = calculateDaysPassed(timeToCalculate);
-                const isDelayed = assignedDays >= 7;
-                
-                const cardClass = isDelayed ? "case-card border-top border-4 case-delayed-border" : "case-card border-top border-4 border-warning";
-                const warningBadge = isDelayed ? `<div class="case-delayed-badge fw-bold"><i class="fa-solid fa-triangle-exclamation ms-1"></i> ئەم کەیسە ${assignedDays} ڕۆژە سەردانی نەکراوە!</div>` : '';
-
-                list.innerHTML += `
-                <div class="col-md-6 col-lg-6">
-                    <div class="${cardClass}">
-                        ${warningBadge}
-                        <h6 class="fw-bold mb-3"><i class="fa-solid fa-folder-open text-warning me-2"></i> ${primaryText}</h6>
-                        
-                        <div class="time-tracking-box">
-                            <div class="d-flex justify-content-between mb-2 pb-2">
-                                <span class="text-muted"><i class="fa-solid fa-share-nodes me-1"></i> نێردراوە بۆ بەش:</span>
-                                <span class="text-dark" dir="ltr" style="font-size: 0.8rem; font-weight:500;">${formatDateTime(data.assignedAt || data.createdAt)}</span>
-                            </div>
-                            ${generateDaysTrackerHtml(assignedDays)}
-                        </div>
-                        
-                        ${detailsHtml}
-                        
-                        <div class="d-flex flex-wrap gap-2 pt-2 justify-content-center">
-                            <button class="btn btn-sm btn-success action-btn flex-grow-1" onclick="updateStatus('${docId}', 'سەردانی کراوان')">
-                                <i class="fa-solid fa-check-double"></i> سەردانی کراوە
-                            </button>
-                            <button class="btn btn-sm btn-danger action-btn flex-grow-1" onclick="updateStatus('${docId}', 'بەردەست نەبوو')">
-                                <i class="fa-solid fa-xmark"></i> بەردەست نەبوو
-                            </button>
-                            <button class="btn btn-sm btn-secondary action-btn flex-grow-1" onclick="updateStatus('${docId}', 'پێویستی بە سەردان نەبوو')">
-                                <i class="fa-solid fa-ban"></i> پێویست نەبوو
-                            </button>
-                            <button class="btn btn-sm btn-info action-btn flex-grow-1 text-white" onclick="updateStatus('${docId}', 'پێشتر سەردانی کراوە')">
-                                <i class="fa-solid fa-clock-rotate-left"></i> پێشتر کراوە
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            });
+            // پشکنین دەکات بزانێت ئەگەر گەڕانێک نووسرابوو با تەنها ئەوانە پیشان بدات، ئەگەرنا هەمووی
+            const searchBox = document.getElementById('categorySearchBox');
+            if (searchBox && searchBox.value.trim() !== '') {
+                filterCategoryCases(searchBox.value);
+            } else {
+                renderCategoryCases(currentCategoryCases);
+            }
         });
+}
+
+// فەنکشنی نوێ بۆ گەڕان و فلتەرکردنی کەیسەکان
+function filterCategoryCases(term) {
+    if (!term || term.trim() === '') {
+        renderCategoryCases(currentCategoryCases);
+        return;
+    }
+    
+    // گۆڕینی ژمارەی کوردی ناو گەڕانەکە بۆ ئینگلیزی
+    const numbers = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9','۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9'};
+    let normalizedTerm = term.replace(/[٠-٩۰-۹]/g, m => numbers[m]).toLowerCase().trim();
+    
+    const filtered = currentCategoryCases.filter(item => {
+        for (let key in item.data) {
+            let val = item.data[key];
+            if (val && typeof val === 'string') {
+                if (val.toLowerCase().includes(normalizedTerm)) return true;
+            } else if (val && typeof val === 'number') {
+                if (val.toString().includes(normalizedTerm)) return true;
+            }
+        }
+        return false;
+    });
+    
+    renderCategoryCases(filtered);
+}
+
+// فەنکشنی ڕێکخستنی شێوەی کەیسەکان کە پێشتر لەناو openCategory دابوو
+function renderCategoryCases(casesArray) {
+    const list = document.getElementById('category-cases-container');
+    list.innerHTML = '';
+    
+    if (casesArray.length === 0) {
+        list.innerHTML = '<div class="col-12 text-center text-muted mt-5"><i class="fa-solid fa-magnifying-glass mb-3 fa-2x opacity-50"></i><p>هیچ ئەنجامێک بۆ ئەم گەڕانە نەدۆزرایەوە</p></div>';
+        return;
+    }
+
+    casesArray.forEach(item => {
+        const docId = item.id;
+        const data = item.data;
+        const primaryText = getPrimaryText(data);
+        const detailsHtml = generateDetailsHtml(data);
+        
+        const timeToCalculate = data.assignedAt || data.createdAt; 
+        const assignedDays = calculateDaysPassed(timeToCalculate);
+        const isDelayed = assignedDays >= 7;
+        
+        const cardClass = isDelayed ? "case-card border-top border-4 case-delayed-border" : "case-card border-top border-4 border-warning";
+        const warningBadge = isDelayed ? `<div class="case-delayed-badge fw-bold"><i class="fa-solid fa-triangle-exclamation ms-1"></i> ئەم کەیسە ${assignedDays} ڕۆژە سەردانی نەکراوە!</div>` : '';
+
+        list.innerHTML += `
+        <div class="col-md-6 col-lg-6">
+            <div class="${cardClass}">
+                ${warningBadge}
+                <h6 class="fw-bold mb-3"><i class="fa-solid fa-folder-open text-warning me-2"></i> ${primaryText}</h6>
+                
+                <div class="time-tracking-box">
+                    <div class="d-flex justify-content-between mb-2 pb-2">
+                        <span class="text-muted"><i class="fa-solid fa-share-nodes me-1"></i> نێردراوە بۆ بەش:</span>
+                        <span class="text-dark" dir="ltr" style="font-size: 0.8rem; font-weight:500;">${formatDateTime(data.assignedAt || data.createdAt)}</span>
+                    </div>
+                    ${generateDaysTrackerHtml(assignedDays)}
+                </div>
+                
+                ${detailsHtml}
+                
+                <div class="d-flex flex-wrap gap-2 pt-2 justify-content-center">
+                    <button class="btn btn-sm btn-success action-btn flex-grow-1" onclick="updateStatus('${docId}', 'سەردانی کراوان')">
+                        <i class="fa-solid fa-check-double"></i> سەردانی کراوە
+                    </button>
+                    <button class="btn btn-sm btn-danger action-btn flex-grow-1" onclick="updateStatus('${docId}', 'بەردەست نەبوو')">
+                        <i class="fa-solid fa-xmark"></i> بەردەست نەبوو
+                    </button>
+                    <button class="btn btn-sm btn-secondary action-btn flex-grow-1" onclick="updateStatus('${docId}', 'پێویستی بە سەردان نەبوو')">
+                        <i class="fa-solid fa-ban"></i> پێویست نەبوو
+                    </button>
+                    <button class="btn btn-sm btn-info action-btn flex-grow-1 text-white" onclick="updateStatus('${docId}', 'پێشتر سەردانی کراوە')">
+                        <i class="fa-solid fa-clock-rotate-left"></i> پێشتر کراوە
+                    </button>
+                </div>
+            </div>
+        </div>
+        `;
+    });
 }
 
 function showCategoriesView() {
     document.getElementById('cases-view').classList.add('d-none');
     document.getElementById('categories-view').classList.remove('d-none');
     
-    // وەستاندنی وەرگرتنی کەیسەکان کاتێک دەگەڕێیتەوە بۆ لیستی بەشەکان
+    // پاککردنەوەی گەڕانەکە کاتێک دەگەڕێتەوە دواوە
+    const searchBox = document.getElementById('categorySearchBox');
+    if (searchBox) searchBox.value = '';
+
     if (currentCategoryListener) {
         currentCategoryListener();
         currentCategoryListener = null;
     }
 }
-
-// ==========================================
-// کۆتایی فەنکشنەکانی بەشەکان
-// ==========================================
-
 
 function generateDetailsHtml(data) {
     let html = '<div class="mt-3 mb-3 p-2 border rounded shadow-sm bg-white" style="font-size: 0.9rem; max-height: 180px; overflow-y: auto;">';
